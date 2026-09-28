@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme {
+  --font-sans:  var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+
+  --color-ink:      #10233A;
+  --color-paper:    #EFF1EE;
+  --color-card:     #FFFFFF;
+  --color-slate:    #5A6672;
+  --color-rule:     #D6DAD5;
+  --color-brass:    #A97C2F;
+  --color-mulberry: #6E2F45;
+  --color-sage:     #6F8A76;
+  --color-clay:     #9C4A32;
+
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-popover: var(--color-card);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-brass);
+  --color-primary-foreground: var(--color-paper);
+  --color-secondary: var(--color-rule);
+  --color-secondary-foreground: var(--color-ink);
+
+  --color-border: var(--color-rule);
+  --color-input: var(--color-rule);
+  --color-ring: var(--color-brass);
+
+  --color-primary: var(--color-brass);
+  --color-primary-foreground: var(--color-card);
+
+  --color-secondary: var(--color-slate);
+  --color-secondary-foreground: var(--color-card);
+
+  --color-destructive: var(--color-clay);
+  --color-destructive-foreground: var(--color-card);
+
+  --color-muted: var(--color-slate);
+  --color-muted-foreground: var(--color-slate);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these base styles back for old Tailwind CSS v3 styling behavior.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
+
+:root {
+  --radius: 0.25rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
