@@ -80,7 +80,7 @@ async function handleEvent(event: Stripe.Event) {
     }
     case 'invoice.paid': {
       const invoice = event.data.object as Stripe.Invoice
-      const userId = invoice.subscription_details?.metadata?.user_id || invoice.metadata?.user_id
+      const userId = (invoice as any).subscription_details?.metadata?.user_id || invoice.metadata?.user_id
       
       let finalUserId = userId
       if (!finalUserId && invoice.customer) {

@@ -22,9 +22,8 @@ export default async function HubLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-ink-muted hidden sm:inline-block">
-              {profile.full_name}
-            </span>
+            <Link href="/me" className="text-sm font-medium hover:underline">Profile</Link>
+            <Link href="/me/membership" className="text-sm font-medium hover:underline text-brass">Membership</Link>
             <form action={signOut}>
               <Button variant="ghost" size="sm" type="submit">Sign out</Button>
             </form>
