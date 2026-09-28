@@ -2,6 +2,7 @@ import { requireActiveMember } from '@/lib/auth/guards'
 import { createClient } from '@/lib/supabase/server'
 import { env } from '@/lib/env'
 import Link from 'next/link'
+import { MultiUpload } from '@/components/member/multi-upload'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,13 +16,17 @@ export default async function GalleryPage() {
       id, storage_path, post_id, created_at,
       posts(slug, title)
     `)
+    .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
   return (
     <div className="max-w-5xl mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-serif">Gallery</h1>
-        <Link href="/hub/albums" className="text-brass hover:underline text-sm font-medium">View Albums</Link>
+        <div className="flex items-center gap-4">
+          <Link href="/hub/albums" className="text-brass hover:underline text-sm font-medium">View Albums</Link>
+          <MultiUpload />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

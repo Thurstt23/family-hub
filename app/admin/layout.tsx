@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="font-serif font-medium text-lg">Admin Console</span>
             <nav className="hidden md:flex gap-4 text-sm font-medium">
               <Link href="/admin/content" className="text-brass">Content</Link>
+              <Link href="/admin/moderation" className="text-brass">Moderation</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">

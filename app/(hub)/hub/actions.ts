@@ -72,3 +72,13 @@ export async function addComment(postId: string, content: string, parentId?: str
   if (error) throw new Error(error.message)
   revalidatePath('/hub')
 }
+
+export async function reportComment(commentId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not logged in')
+
+  const { error } = await supabase.from('comments').update({ status: 'pending' }).eq('id', commentId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/hub')
+}

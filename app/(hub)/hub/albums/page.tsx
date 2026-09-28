@@ -26,7 +26,7 @@ export default async function AlbumsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {albums?.map(album => (
-          <Link key={album.id} href={`/albums/${album.id}`} className="group block space-y-3">
+          <Link key={album.id} href={`/hub/albums/${album.id}`} className="group block space-y-3">
             <div className="relative aspect-video bg-muted rounded-md overflow-hidden border border-rule">
               {album.cover_url ? (
                 <img 

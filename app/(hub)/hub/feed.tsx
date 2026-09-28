@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { Heart, MessageCircle } from 'lucide-react'
-import { toggleLike, addComment } from './actions'
+import { toggleLike, addComment, reportComment } from './actions'
 import { PostComposer } from './post-composer'
+import { Markdown } from '@/components/ui/markdown'
 
 export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: string }) {
   const [posts, setPosts] = useState(initialPosts)
@@ -65,7 +66,7 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
             </div>
 
             {post.body && (
-              <p className="text-ink whitespace-pre-wrap">{post.body}</p>
+              <Markdown content={post.body} />
             )}
 
             {post.photos && post.photos.length > 0 && (
@@ -105,15 +106,31 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                 {(post.comments || []).map((c: any) => {
                   const author = Array.isArray(c.author) ? c.author[0] : c.author
                   return (
-                    <div key={c.id} className="flex gap-3 text-sm">
+                    <div key={c.id} className="flex gap-3 text-sm group">
                       <div className="w-8 h-8 rounded-full bg-muted overflow-hidden shrink-0 border border-rule">
                         {author?.avatar_url && (
                           <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${author.avatar_url}`} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
-                      <div className="bg-muted px-3 py-2 rounded-md flex-1">
+                      <div className="bg-muted px-3 py-2 rounded-md flex-1 relative">
                         <p className="font-medium text-ink">{author?.full_name}</p>
                         <p className="text-ink">{c.body}</p>
+                        {author?.id !== userId && (
+                          <button 
+                            onClick={async () => {
+                              if (confirm('Report this comment to moderators?')) {
+                                try {
+                                  await reportComment(c.id)
+                                  alert('Comment reported.')
+                                  window.location.reload()
+                                } catch (e: any) { alert(e.message) }
+                              }
+                            }}
+                            className="absolute top-2 right-2 text-xs text-slate opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                          >
+                            Report
+                          </button>
+                        )}
                       </div>
                     </div>
                   )
