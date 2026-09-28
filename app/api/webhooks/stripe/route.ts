@@ -19,7 +19,7 @@ const RELEVANT = new Set([
 async function handleEvent(event: Stripe.Event) {
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
+      const session = event.data.object as any
       const userId = session.client_reference_id
       if (!userId) throw new Error('Missing client_reference_id')
 
@@ -46,19 +46,19 @@ async function handleEvent(event: Stripe.Event) {
         const subId = session.subscription as string
         if (subId) {
           const subscription = await stripe.subscriptions.retrieve(subId)
-          await handleSubscription(subscription)
+          await handleSubscription(subscription as any)
         }
       }
       break
     }
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
-      const subscription = event.data.object as Stripe.Subscription
+      const subscription = event.data.object as any
       await handleSubscription(subscription)
       break
     }
     case 'customer.subscription.deleted': {
-      const subscription = event.data.object as Stripe.Subscription
+      const subscription = event.data.object as any
       const userId = subscription.metadata?.user_id
       if (!userId) throw new Error('Missing user_id in subscription metadata')
       
@@ -129,14 +129,15 @@ async function handleSubscription(sub: Stripe.Subscription) {
     
   if (!tier) throw new Error(`Unmapped price ${priceId}`)
 
+  const s = sub as any
   await supabaseAdmin.from('memberships').upsert({
     user_id: userId,
     tier_id: tier.id,
-    status: sub.status,
-    stripe_customer_id: sub.customer as string,
-    stripe_subscription_id: sub.id,
-    current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
-    cancel_at_period_end: sub.cancel_at_period_end
+    status: s.status,
+    stripe_customer_id: s.customer as string,
+    stripe_subscription_id: s.id,
+    current_period_end: new Date(s.current_period_end * 1000).toISOString(),
+    cancel_at_period_end: s.cancel_at_period_end
   })
 
   await supabaseAdmin.from('audit_log').insert({
