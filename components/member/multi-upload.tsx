@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import imageCompression from 'browser-image-compression'
-import { Button } from '@/components/ui/button'
+
 import { createClient } from '@/lib/supabase/client'
 import { attachPhoto } from '@/app/(hub)/hub/actions'
 
@@ -73,11 +73,12 @@ export function MultiUpload({ albumId }: { albumId?: string }) {
         className="hidden"
         id="multi-upload-input"
       />
-      <Button asChild disabled={uploading}>
-        <label htmlFor="multi-upload-input" className="cursor-pointer">
-          {uploading ? 'Uploading...' : 'Upload Photos'}
-        </label>
-      </Button>
+      <label 
+        htmlFor="multi-upload-input" 
+        className={`cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''} inline-flex items-center justify-center rounded-lg bg-brass px-4 py-2 text-sm font-medium text-white hover:bg-brass/90`}
+      >
+        {uploading ? 'Uploading...' : 'Upload Photos'}
+      </label>
     </div>
   )
 }
