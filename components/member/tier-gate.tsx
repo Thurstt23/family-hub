@@ -13,7 +13,9 @@ export async function TierGate({ requiredLevel, tierName, children }: { required
     .eq('user_id', user.id)
     .single()
 
-  const currentLevel = Array.isArray(membership?.tier) ? membership?.tier[0]?.level : membership?.tier?.level || 0
+  // Supabase may type/return the joined tier as an object or a single-item array
+  const tier = membership?.tier as { level: number } | { level: number }[] | null | undefined
+  const currentLevel = (Array.isArray(tier) ? tier[0]?.level : tier?.level) ?? 0
 
   if (currentLevel >= requiredLevel) {
     return <>{children}</>
