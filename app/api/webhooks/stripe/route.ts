@@ -88,15 +88,16 @@ async function handleEvent(event: Stripe.Event) {
          finalUserId = m?.user_id
       }
 
+      const inv = invoice as any
       await supabaseAdmin.from('payments').insert({
         user_id: finalUserId || null,
-        stripe_invoice_id: invoice.id,
-        stripe_pi_id: invoice.payment_intent as string,
-        amount_cents: invoice.amount_paid,
-        currency: invoice.currency,
+        stripe_invoice_id: inv.id,
+        stripe_pi_id: inv.payment_intent as string,
+        amount_cents: inv.amount_paid,
+        currency: inv.currency,
         status: 'paid',
-        receipt_url: invoice.hosted_invoice_url,
-        paid_at: new Date(invoice.status_transitions.paid_at! * 1000).toISOString()
+        receipt_url: inv.hosted_invoice_url,
+        paid_at: new Date(inv.status_transitions?.paid_at! * 1000).toISOString()
       })
       break
     }
