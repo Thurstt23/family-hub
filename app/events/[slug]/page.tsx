@@ -17,7 +17,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   // Will only return if RLS allows
   const { data: event } = await supabase
     .from('events')
-    .select('*, profiles(full_name)')
+    .select('*, profiles!events_created_by_fkey(full_name)')
     .eq('slug', slug)
     .single()
 

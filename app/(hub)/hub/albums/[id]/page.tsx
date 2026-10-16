@@ -14,7 +14,7 @@ export default async function AlbumDetailPage({ params }: { params: Promise<{ id
 
   const { data: album } = await supabase
     .from('albums')
-    .select('*, profiles(full_name)')
+    .select('*, profiles!albums_created_by_fkey(full_name)')
     .eq('id', id)
     .single()
 

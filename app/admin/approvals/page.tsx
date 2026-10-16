@@ -31,7 +31,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
   // looks after, and everything for admins (06, section 6).
   const { data, count, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email, city, country, bio, created_at, rejection_reason, reviewed_at, branch:family_branches(name)', { count: 'exact' })
+    .select('id, full_name, email, city, country, bio, created_at, rejection_reason, reviewed_at, branch:family_branches!profiles_branch_id_fkey(name)', { count: 'exact' })
     .eq('status', 'pending')
     .not('branch_id', 'is', null)
     .order('created_at', { ascending: true })

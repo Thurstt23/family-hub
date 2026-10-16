@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 const BATCH = 1000
 const COLUMNS =
   'id, handle, full_name, email, phone, city, country, generation, status, created_at, ' +
-  'branch:family_branches(name), ' +
+  'branch:family_branches!profiles_branch_id_fkey(name), ' +
   'membership:memberships(status, current_period_end, tier:membership_tiers(name))'
 
 type ExportRow = {

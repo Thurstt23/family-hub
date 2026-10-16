@@ -11,7 +11,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, family_branches(name, slug)')
+    .select('*, family_branches:family_branches!profiles_branch_id_fkey(name, slug)')
     .eq('handle', handle)
     .eq('status', 'active')
     .single()

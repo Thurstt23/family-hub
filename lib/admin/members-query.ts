@@ -69,7 +69,7 @@ export function buildMembersQuery(
 
 export const MEMBER_GRID_COLUMNS =
   'id, handle, full_name, email, city, status, created_at, branch_id, ' +
-  'branch:family_branches(name), ' +
+  'branch:family_branches!profiles_branch_id_fkey(name), ' +
   'roles:user_roles!user_roles_user_id_fkey(role), ' +
   'membership:memberships(status, current_period_end, tier:membership_tiers(name, level))'
 

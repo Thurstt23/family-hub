@@ -25,7 +25,7 @@ export default async function DirectoryPage({
 
   let q = supabase
     .from('profiles')
-    .select('id, handle, full_name, avatar_url, city, generation, family_branches(name)', { count: 'estimated' })
+    .select('id, handle, full_name, avatar_url, city, generation, branch:family_branches!profiles_branch_id_fkey(name)', { count: 'estimated' })
     .eq('status', 'active')
 
   if (search) q = q.textSearch('search_vector', search, { type: 'websearch' })
@@ -67,7 +67,7 @@ export default async function DirectoryPage({
         <div className="flex flex-col">
           <div className="border-t border-rule">
             {profiles.map(p => {
-              const branchName = (p.family_branches as any)?.name || ''
+              const branchName = (Array.isArray(p.branch) ? p.branch[0]?.name : (p.branch as { name?: string } | null)?.name) || ''
               return (
                 <IndexRow key={p.id} href={`/directory/${p.handle}`}>
                   <div className="flex items-center gap-4 py-3 w-full px-2">

@@ -7,3 +7,4 @@
 - **Design:** "the register". Colours only from the tokens in `app/globals.css`; brass is the single accent, mulberry only for money and tiers. No new fonts, gradients, card grids or decorative animation. English only.
 - **Dates:** format with `lib/dates.ts` (family timezone), never `toLocaleString` or date-fns `format` on the server.
 - **Checks before finishing:** `pnpm typecheck`, `pnpm lint` (0 errors), `pnpm test`, `pnpm test:db` if SQL changed, `pnpm build`.
+- **Supabase embeds:** `profiles`↔`family_branches`, `events`↔`profiles` and `albums`↔`profiles` have more than one relationship (through `branch_stewards`, `event_rsvps`, `photos`), so PostgREST refuses an unhinted embed. Always name the foreign key: `family_branches!profiles_branch_id_fkey(...)`, `profiles!events_created_by_fkey(...)`, `profiles!albums_created_by_fkey(...)`, `user_roles!user_roles_user_id_fkey(...)`, `profiles!posts_author_id_fkey(...)`.

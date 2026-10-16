@@ -7,7 +7,7 @@ export default async function BranchesPage() {
   
   const { data: branches } = await supabase
     .from('family_branches')
-    .select('*, profiles(count)')
+    .select('*, profiles!profiles_branch_id_fkey(count)')
     .order('sort_order')
 
   return (

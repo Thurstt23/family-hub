@@ -18,7 +18,7 @@ export default async function AdminMemberPage({ params }: { params: Promise<{ id
     await Promise.all([
       supabase
         .from('profiles')
-        .select('id, handle, full_name, display_name, email, phone, birthday, city, country, generation, bio, status, rejection_reason, reviewed_at, created_at, updated_at, branch:family_branches(name)')
+        .select('id, handle, full_name, display_name, email, phone, birthday, city, country, generation, bio, status, rejection_reason, reviewed_at, created_at, updated_at, branch:family_branches!profiles_branch_id_fkey(name)')
         .eq('id', id)
         .maybeSingle(),
       supabase.from('user_roles').select('role, granted_at').eq('user_id', id),
