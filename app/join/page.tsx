@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
-import { buttonVariants } from '@/components/ui/button'
+import { PageIntro } from '@/components/marketing/page-intro'
 import { createClient } from '@/lib/supabase/public'
 import { site } from '@/content/site'
 
@@ -18,9 +18,9 @@ export const revalidate = 3600
 type Tier = { slug: string; name: string; description: string | null; level: number; price_cents: number; billing_interval: string; benefits: unknown }
 
 function price(t: Tier) {
-  if (t.price_cents === 0) return 'Free'
+  if (t.price_cents === 0) return { amount: 'Free', unit: '' }
   const amount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(t.price_cents / 100)
-  return t.billing_interval === 'one_time' ? `${amount} once` : `${amount} a year`
+  return { amount, unit: t.billing_interval === 'one_time' ? 'once' : 'a year' }
 }
 
 export default async function JoinPage() {
@@ -35,53 +35,65 @@ export default async function JoinPage() {
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader current="/join" />
 
-      <main id="main" className="flex-1 py-24 px-6 lg:px-12 max-w-4xl mx-auto w-full space-y-16">
-        <div className="space-y-6 text-center max-w-2xl mx-auto">
-          <h1 className="font-serif text-4xl md:text-5xl font-medium">{site.join.title}</h1>
-          <p className="text-xl text-slate leading-relaxed">{site.join.intro}</p>
-        </div>
-
-        <div className="p-8 border border-border bg-card space-y-6 max-w-2xl mx-auto">
-          <h2 className="font-serif text-2xl">How to join</h2>
-          <ol className="list-decimal pl-5 space-y-3">
-            {site.join.steps.map(step => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-          <div className="pt-2">
-            <Link href="/signup" className={buttonVariants({ variant: 'default', className: 'w-full rounded-none h-12 text-base' })}>
+      <main id="main" className="flex-1">
+        <PageIntro title={site.join.title} lead={site.join.intro}>
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link href="/signup" className="inline-flex h-12 items-center rounded-sm bg-ink px-7 text-base font-medium text-paper transition-colors hover:bg-brass">
               Join the register
             </Link>
+            <p className="text-slate">
+              Already a member? <Link href="/login" className="text-ink underline decoration-brass decoration-2 underline-offset-4">Sign in</Link>
+            </p>
           </div>
-          <p className="text-sm text-slate text-center">
-            Already have an account? <Link href="/login" className="text-ink underline decoration-brass underline-offset-4">Sign in</Link>
-          </p>
-        </div>
+        </PageIntro>
+
+        <section aria-labelledby="steps-heading" className="mx-auto max-w-7xl px-6 py-20 lg:px-12 lg:py-24">
+          <h2 id="steps-heading" className="font-serif text-4xl font-medium tracking-tight">How it works</h2>
+          <ol className="mt-10 grid gap-10 border-t border-rule pt-10 sm:grid-cols-2 lg:grid-cols-4">
+            {site.join.steps.map((step, i) => (
+              <li key={step} className="space-y-3">
+                <span className="block font-serif text-5xl italic text-brass tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <p className="max-w-[28ch] leading-relaxed">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         {tiers.length ? (
-          <section aria-labelledby="tiers-heading" className="space-y-6">
-            <div className="space-y-2 max-w-2xl">
-              <h2 id="tiers-heading" className="font-serif text-3xl">Memberships</h2>
-              <p className="text-slate">{site.join.membershipIntro}</p>
+          <section aria-labelledby="tiers-heading" className="grain border-t border-rule bg-paper-deep">
+            <div className="mx-auto max-w-7xl px-6 py-20 lg:px-12 lg:py-24">
+              <div className="max-w-2xl">
+                <h2 id="tiers-heading" className="font-serif text-4xl font-medium tracking-tight">Memberships</h2>
+                <p className="mt-4 text-lg leading-relaxed text-slate">{site.join.membershipIntro}</p>
+              </div>
+              <ul className="mt-12 grid gap-px overflow-hidden rounded-sm border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
+                {tiers.map(t => {
+                  const p = price(t)
+                  const paid = t.level > 0
+                  return (
+                    <li key={t.slug} className="flex flex-col bg-card p-7">
+                      <p className={paid ? 'font-serif text-2xl text-mulberry' : 'font-serif text-2xl'}>{t.name}</p>
+                      <p className="mt-4 flex items-baseline gap-2">
+                        <span className="font-serif text-4xl tabular-nums">{p.amount}</span>
+                        {p.unit ? <span className="text-sm text-slate">{p.unit}</span> : null}
+                      </p>
+                      {t.description ? <p className="mt-4 text-sm leading-relaxed text-slate">{t.description}</p> : null}
+                      {Array.isArray(t.benefits) && t.benefits.length ? (
+                        <ul className="mt-5 space-y-2 border-t border-rule pt-5 text-sm">
+                          {(t.benefits as string[]).map(b => (
+                            <li key={b} className="flex gap-2">
+                              <span aria-hidden="true" className={paid ? 'text-mulberry' : 'text-slate'}>—</span>
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </li>
+                  )
+                })}
+              </ul>
+              <p className="mt-6 text-sm text-slate">Paid memberships are chosen after your request is approved, from your membership page.</p>
             </div>
-            <ul className="divide-y divide-rule border-y border-rule">
-              {tiers.map(t => (
-                <li key={t.slug} className="grid gap-2 py-5 sm:grid-cols-[12rem_1fr]">
-                  <div>
-                    <p className="font-medium text-lg">{t.name}</p>
-                    <p className={`tabular-nums ${t.level > 0 ? 'text-mulberry' : 'text-slate'}`}>{price(t)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    {t.description ? <p>{t.description}</p> : null}
-                    {Array.isArray(t.benefits) && t.benefits.length ? (
-                      <ul className="list-disc pl-5 text-slate">
-                        {(t.benefits as string[]).map(b => <li key={b}>{b}</li>)}
-                      </ul>
-                    ) : null}
-                  </div>
-                </li>
-              ))}
-            </ul>
           </section>
         ) : null}
       </main>

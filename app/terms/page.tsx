@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
 import { site } from '@/content/site'
+import { PageIntro } from '@/components/marketing/page-intro'
 
 export const metadata: Metadata = {
   title: 'Terms',
@@ -12,8 +13,9 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader />
-      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-3xl mx-auto w-full space-y-8 [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:pt-4 [&_p]:max-w-[68ch] [&_li]:max-w-[68ch]">
-        <h1 className="text-4xl font-serif">Terms</h1>
+      <main id="main" className="flex-1">
+        <PageIntro title="Terms" lead="The ground rules for using the register and paying for a membership. Short, because this is a family, not a business." />
+        <div className="mx-auto max-w-3xl px-6 py-16 space-y-8 [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:pt-4 [&_p]:max-w-[68ch] [&_li]:max-w-[68ch] [&_h2]:md:text-3xl">
         <p>By creating an account you agree to these terms. They are short because the site is a family register, not a business.</p>
 
         <h2>Membership of the register</h2>
@@ -39,6 +41,7 @@ export default function TermsPage() {
 
         <h2>Changes</h2>
         <p>If these terms change in a way that matters, we will say so in an announcement before the change takes effect.</p>
+        </div>
       </main>
       <SiteFooter />
     </div>

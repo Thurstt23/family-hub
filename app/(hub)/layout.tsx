@@ -3,6 +3,7 @@ import { signOut } from '@/lib/auth/actions'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { site } from '@/content/site'
+import { Monogram } from '@/components/brand/monogram'
 
 const NAV = [
   { href: '/hub', label: 'Feed' },
@@ -24,8 +25,9 @@ export default async function HubLayout({ children }: { children: React.ReactNod
       <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6 min-w-0">
-            <Link href="/hub" className="font-serif text-xl font-medium whitespace-nowrap">
-              {site.name}
+            <Link href="/hub" className="flex items-center gap-2.5 font-serif text-xl font-medium whitespace-nowrap">
+              <Monogram className="size-8" />
+              <span className="hidden sm:inline">{site.name}</span>
             </Link>
             <nav aria-label="Primary" className="hidden md:flex gap-4 text-sm font-medium">
               {NAV.map(n => (

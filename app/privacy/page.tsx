@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
 import { site } from '@/content/site'
+import { PageIntro } from '@/components/marketing/page-intro'
 
 export const metadata: Metadata = {
   title: 'Privacy',
@@ -14,8 +15,9 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader />
-      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-3xl mx-auto w-full space-y-8 [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:pt-4 [&_p]:max-w-[68ch] [&_li]:max-w-[68ch]">
-        <h1 className="text-4xl font-serif">Privacy</h1>
+      <main id="main" className="flex-1">
+        <PageIntro title="Privacy" lead="What the register keeps about you, who can see it, and how to have it changed or removed." />
+        <div className="mx-auto max-w-3xl px-6 py-16 space-y-8 [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:pt-4 [&_p]:max-w-[68ch] [&_li]:max-w-[68ch] [&_h2]:md:text-3xl">
         <p>
           The {site.name} site is run by the family, for the family. This page explains what we keep about you,
           who can see it, and how to have it changed or removed.
@@ -56,6 +58,7 @@ export default function PrivacyPage() {
           deleted, or to ask for a copy of what we hold, write to <a href={`mailto:${site.contactEmail}`} className="underline">{site.contactEmail}</a> or reply to any email from us.
           Deletion requests are handled by hand and confirmed by email.
         </p>
+        </div>
       </main>
       <SiteFooter />
     </div>

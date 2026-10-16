@@ -10,8 +10,8 @@ export default async function UpdatePasswordPage({ searchParams }: { searchParam
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-serif text-ink">Set a new password</h1>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-medium font-serif tracking-tight text-ink">Set a new password</h1>
           <p className="text-slate">Choose a new password for your account.</p>
         </div>
 
@@ -28,7 +28,7 @@ export default async function UpdatePasswordPage({ searchParams }: { searchParam
             <p className="text-xs text-slate">Minimum 10 characters.</p>
           </div>
 
-          <Button type="submit" className="w-full">Update password</Button>
+          <Button type="submit" size="lg" className="w-full">Update password</Button>
         </form>
       </div>
     </div>

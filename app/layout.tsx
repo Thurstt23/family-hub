@@ -12,6 +12,7 @@ const karla = Karla({
 
 const newsreader = Newsreader({
   subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-newsreader",
   display: "swap",
 });

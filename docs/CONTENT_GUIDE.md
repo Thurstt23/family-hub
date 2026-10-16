@@ -72,6 +72,7 @@ The home page is designed around one full-width archival photograph with a dark 
    `heroImage: { src: null as string | null, alt: '...' }`
    to
    `heroImage: { src: '/hero.jpg' as string | null, alt: 'Describe the photograph in one sentence' }`.
+   With a photograph the drawn botanical illustration on the right of the heading is replaced by the photo behind it; without one, the illustration shows.
 4. The `alt` text is read aloud to blind visitors. Say who and what, and the year if known, for example *"Four generations on the porch of the Savannah house, Easter 1974"*.
 
 Only use photographs the family has the right to publish, and remember the home page is public.
@@ -86,6 +87,10 @@ Work through these with Claude. Each one is a placeholder written during develop
 
 - [ ] `familyName`, `name`, `shortName`, `familyNameInSentence`: exactly how the family wants to be named.
 - [ ] `tagline`: currently "Six branches. Four generations. One register." Only keep the numbers if they are true.
+- [ ] `home.heroNote` ("Kept since 1961 · Savannah, Georgia") and `home.heroTitle` (the big two-line heading; the second line is set in gold italic).
+- [ ] `home.generations`: the number shown beside the live branch and member counts.
+- [ ] `home.storyHeading`, `home.branchesHeading`, `home.branchesIntro`, `home.joinHeading`: section headings on the home page.
+- [ ] `home.quote`: the line set large near the bottom of the home page and beside the sign-in form. The current one is invented; use a real saying from the family, or a line everyone agrees on.
 - [ ] `home.story`: the two paragraphs mention **1961**, a **leather-bound ledger** and **Savannah**. These were invented as examples. Replace them with the family's real story.
 - [ ] `about.intro` and `about.sections`: same, real history. Add or remove sections freely (copy one `{ heading, paragraphs }` block).
 - [ ] `join.steps` and `join.intro`: check they describe how approval really works in this family (who the stewards are, how long it usually takes).
@@ -123,7 +128,8 @@ These keep the site consistent with its design (the "family register" look) and 
 - Do not invent facts about the family: names, dates, places, numbers. If a sentence needs a fact you were not given, leave a clearly marked question for the person, for example `[[TODO: year the first reunion was held?]]`, and list every TODO at the end of your reply.
 
 **Design**
-- Do not add colours, fonts, shadows, gradients, card grids or animations. Colours come from the existing names only: `ink`, `paper`, `card`, `slate`, `rule`, `brass` (the single accent), `mulberry` (money and tiers only), `sage` (success), `clay` (errors).
+- Do not add colours, fonts, shadows, gradients, card grids or animations. Colours come from the existing names only: `ink`, `ink-deep`, `paper`, `paper-deep`, `card`, `slate`, `rule`, `brass` (the single accent), `brass-light` (only on dark ink), `mulberry` (money and tiers only), `sage` (success), `clay` (errors).
+- The drawings (`components/illustrations/`) are part of the design: a botanical sprig, an open register, and the family tree drawn from the real branches. Reuse them; do not add clip art or stock icons.
 - Headings use the serif (`font-serif`), everything else the default sans.
 - Every image needs real `alt` text.
 

@@ -8,10 +8,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next, error, success } = await searchParams
 
   return (
-    <main id="main" className="flex min-h-screen flex-col items-center justify-center p-4">
+    <main id="main" className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-serif text-ink">Welcome back</h1>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-medium font-serif tracking-tight text-ink">Welcome back</h1>
           <p className="text-slate">Sign in to your account</p>
         </div>
 
@@ -44,7 +44,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <Input id="password" name="password" type="password" required />
           </div>
 
-          <Button type="submit" className="w-full">Sign in</Button>
+          <Button type="submit" size="lg" className="w-full">Sign in</Button>
         </form>
 
         <div className="relative">
@@ -60,7 +60,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <input type="hidden" name="next" value={next || ''} />
           <div className="flex space-x-2">
             <Input name="email" type="email" placeholder="Email for magic link" aria-label="Email for a sign in link" required />
-            <Button type="submit" variant="outline">Email Link</Button>
+            <Button type="submit" variant="outline" className="h-10">Email link</Button>
           </div>
         </form>
 

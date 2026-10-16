@@ -90,3 +90,13 @@ export function siteTimezoneLabel(): string {
     .find(p => p.type === 'timeZoneName')?.value
   return name ? `${name} (${SITE_TIMEZONE})` : SITE_TIMEZONE
 }
+
+const dayNumber = fmt('en-US', { day: 'numeric' })
+const monthYear = fmt('en-GB', { month: 'long', year: 'numeric' })
+const weekday = fmt('en-GB', { weekday: 'long' })
+/** 14 */
+export const formatDayNumber = (v: string | Date) => dayNumber.format(d(v))
+/** June 2026 */
+export const formatMonthYear = (v: string | Date) => monthYear.format(d(v))
+/** Sunday */
+export const formatWeekday = (v: string | Date) => weekday.format(d(v))

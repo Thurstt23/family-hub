@@ -9,10 +9,10 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   const { error, success } = await searchParams
 
   return (
-    <main id="main" className="flex min-h-screen flex-col items-center justify-center p-4">
+    <main id="main" className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-serif text-ink">Join {site.name}</h1>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-medium font-serif tracking-tight text-ink">Join {site.name}</h1>
           <p className="text-slate">Create an account to connect with the family.</p>
         </div>
 
@@ -39,7 +39,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
             <p className="text-xs text-slate">Minimum 10 characters.</p>
           </div>
 
-          <Button type="submit" className="w-full">Sign up</Button>
+          <Button type="submit" size="lg" className="w-full">Sign up</Button>
         </form>
 
         <div className="relative">

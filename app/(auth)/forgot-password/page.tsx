@@ -28,8 +28,8 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-serif text-ink">Reset password</h1>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-medium font-serif tracking-tight text-ink">Reset password</h1>
           <p className="text-slate">Enter your email and we&apos;ll send you a reset link.</p>
         </div>
 
@@ -50,7 +50,7 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
             <Input id="email" name="email" type="email" required placeholder="you@example.com" />
           </div>
 
-          <Button type="submit" className="w-full">Send reset link</Button>
+          <Button type="submit" size="lg" className="w-full">Send reset link</Button>
         </form>
 
         <div className="text-center text-sm">

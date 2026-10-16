@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
-import { formatShortDate, formatYear } from '@/lib/dates'
+import { formatDayNumber, formatMonthYear, formatWeekday } from '@/lib/dates'
+import { PageIntro } from '@/components/marketing/page-intro'
+import { Botanical } from '@/components/illustrations/botanical'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
@@ -55,53 +57,55 @@ export default async function EventsPage() {
       />
       <SiteHeader current="/events" />
 
-      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
-        <div className="flex items-end justify-between border-b border-border pb-6 mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl font-medium">Upcoming Events</h1>
-        </div>
+      <main id="main" className="flex-1">
+        <PageIntro
+          title="Gatherings"
+          lead="Reunions, anniversaries and the smaller days in between. Members can reply from each event's page."
+        />
 
-        {events && events.length > 0 ? (
-          <div className="space-y-12">
-            {events.map((event) => (
-              <article key={event.id} className="group relative">
-                <div className="flex flex-col md:flex-row gap-6 md:gap-12">
-                  <div className="md:w-1/3 flex flex-col text-slate">
-                    <span className="font-serif text-2xl text-ink">
-                      {formatShortDate(event.starts_at)}
+        <div className="mx-auto max-w-5xl px-6 py-16 lg:px-12 lg:py-20">
+          {events && events.length > 0 ? (
+            <ol className="divide-y divide-rule border-y border-rule">
+              {events.map((event) => (
+                <li key={event.id}>
+                  <Link
+                    href={`/events/${event.slug}`}
+                    className="group grid gap-6 py-10 transition-colors hover:bg-paper-deep/60 sm:grid-cols-[9rem_1fr_auto] sm:items-start sm:px-4"
+                  >
+                    <div className="flex items-baseline gap-3 sm:block">
+                      <span className="block font-serif text-6xl leading-none tabular-nums text-ink">{formatDayNumber(event.starts_at)}</span>
+                      <span className="block text-sm text-slate sm:mt-2">{formatMonthYear(event.starts_at)}</span>
+                      <span className="block text-sm text-slate">{formatWeekday(event.starts_at)}</span>
+                    </div>
+                    <div className="space-y-3">
+                      <h2 className="font-serif text-3xl font-medium leading-tight group-hover:text-brass">{event.title}</h2>
+                      {event.location_name ? <p className="text-slate">{event.location_name}</p> : null}
+                      {event.description ? (
+                        <p className="max-w-[60ch] leading-relaxed line-clamp-3">{event.description}</p>
+                      ) : null}
+                    </div>
+                    <span className="self-center text-sm font-medium underline decoration-brass decoration-2 underline-offset-8">
+                      Details <span aria-hidden="true">→</span>
                     </span>
-                    <span className="font-medium text-sm tabular-nums mt-1">
-                      {formatYear(event.starts_at)}
-                    </span>
-                    <span className="mt-4 text-sm font-medium">{event.location_name}</span>
-                  </div>
-                  <div className="md:w-2/3 space-y-4">
-                    <h2 className="text-2xl font-serif font-medium">{event.title}</h2>
-                    {event.description && (
-                      <p className="text-slate leading-relaxed">
-                        {event.description}
-                      </p>
-                    )}
-                    <Link href={`/events/${event.slug}`} className={buttonVariants({ variant: 'outline', className: "rounded-none font-medium mt-4" })}>
-                      View Event
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-24 space-y-4">
-            <h2 className="text-2xl font-serif">No upcoming events scheduled</h2>
-            {!user && (
-              <>
-                <p className="text-slate">Check back later or sign in to view members-only events.</p>
-                <Link href="/login" className={buttonVariants({ variant: 'outline', className: "rounded-none mt-4" })}>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="flex flex-col items-center py-16 text-center">
+              <Botanical className="h-48 w-auto text-brass/40" />
+              <h2 className="mt-8 font-serif text-3xl">No gatherings announced yet</h2>
+              <p className="mt-3 max-w-md text-slate">
+                {user ? 'New gatherings appear here as soon as a steward announces them.' : 'Public gatherings appear here. Members see every event once they sign in.'}
+              </p>
+              {!user ? (
+                <Link href="/login" className="mt-8 inline-flex h-11 items-center rounded-sm bg-ink px-6 font-medium text-paper transition-colors hover:bg-brass">
                   Sign in
                 </Link>
-              </>
-            )}
-          </div>
-        )}
+              ) : null}
+            </div>
+          )}
+        </div>
       </main>
 
       <SiteFooter />

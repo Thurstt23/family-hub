@@ -25,17 +25,32 @@ export const site = {
   contactEmail: 'hello@example.com',
 
   home: {
+    /** Small line above the big heading. */
+    heroNote: 'Kept since 1961 · Savannah, Georgia',
+    /** The big heading, in two lines. The second line is set in italic gold. */
+    heroTitle: ['The Martin Sawyer', 'Family'],
     /**
-     * Large photograph behind the heading. Put the file in /public (for
+     * Optional photograph behind the heading. Put the file in /public (for
      * example public/hero.jpg, at least 2000px wide) and set src to '/hero.jpg'.
-     * Leave src as null for a plain dark background.
+     * Leave src as null to show the drawn botanical illustration instead.
      */
     heroImage: { src: null as string | null, alt: 'The family gathered on the steps of the old house, 1961' },
-    /** Two or three short paragraphs under the photograph. */
+    /** Shown in the row of figures under the heading. Branch and member counts come from the database. */
+    generations: 4,
+    storyHeading: 'A register kept by many hands',
+    /** Two or three short paragraphs beside the drawing of the register. */
     story: [
       'Since 1961, our family has kept a register of every birth, marriage, and passing. What started as a single leather-bound ledger in Savannah has grown into a living record connecting hundreds of descendants across the country.',
       'This hub keeps that record going: so our history is not lost, our connections stay close, and the next generation knows exactly where they come from.',
     ],
+    branchesHeading: 'The branches',
+    branchesIntro: 'Every member belongs to a branch, and every branch has a steward who welcomes new names into the register.',
+    joinHeading: 'Joining takes a few minutes',
+    /** A short line set large near the bottom of the home page, with who said it. */
+    quote: {
+      text: 'We are, each of us, a line in a book someone else began.',
+      attribution: 'From the first page of the register',
+    },
   },
 
   about: {
