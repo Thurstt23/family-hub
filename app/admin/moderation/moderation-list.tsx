@@ -1,68 +1,96 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { moderatePhoto, moderateComment } from './actions'
 
-export function ModerationList({ initialPhotos, initialComments, storageUrl }: { initialPhotos: any[], initialComments: any[], storageUrl: string }) {
+type PendingPhoto = { id: string; storage_path: string; caption: string | null; uploader: { full_name: string } | null }
+type ReportedComment = { id: string; body: string; author: { full_name: string } | null }
+
+export function ModerationList({
+  initialPhotos,
+  initialComments,
+  storageUrl,
+}: {
+  initialPhotos: PendingPhoto[]
+  initialComments: ReportedComment[]
+  storageUrl: string
+}) {
   const [photos, setPhotos] = useState(initialPhotos)
   const [comments, setComments] = useState(initialComments)
+  const [error, setError] = useState<string | null>(null)
+  const [pending, startTransition] = useTransition()
 
-  const handlePhoto = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      await moderatePhoto(id, status)
-      setPhotos(prev => prev.filter(p => p.id !== id))
-    } catch (e: any) { alert(e.message) }
-  }
+  const handlePhoto = (id: string, status: 'approved' | 'rejected') =>
+    startTransition(async () => {
+      const res = await moderatePhoto(id, status)
+      if (res.ok) {
+        setPhotos(prev => prev.filter(p => p.id !== id))
+        setError(null)
+      } else setError(res.error)
+    })
 
-  const handleComment = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      await moderateComment(id, status)
-      setComments(prev => prev.filter(c => c.id !== id))
-    } catch (e: any) { alert(e.message) }
-  }
+  const handleComment = (id: string, decision: 'keep' | 'remove') =>
+    startTransition(async () => {
+      const res = await moderateComment(id, decision)
+      if (res.ok) {
+        setComments(prev => prev.filter(c => c.id !== id))
+        setError(null)
+      } else setError(res.error)
+    })
 
   return (
-    <div className="space-y-12">
-      <section>
-        <h2 className="text-xl font-medium border-b border-rule pb-2 mb-4">Pending Photos ({photos.length})</h2>
+    <div className="space-y-12" aria-busy={pending}>
+      {error ? <p role="alert" className="text-sm text-clay">{error}</p> : null}
+
+      <section aria-labelledby="photos-heading">
+        <h2 id="photos-heading" className="text-xl font-serif border-b border-rule pb-2 mb-4">
+          Photos waiting for review <span className="text-slate tabular-nums">({photos.length})</span>
+        </h2>
         {photos.length === 0 ? (
-          <p className="text-slate text-sm">No photos pending review.</p>
+          <p className="text-slate text-sm">No photos are waiting. New uploads appear here.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {photos.map(photo => (
-              <div key={photo.id} className="border border-rule rounded-md bg-card overflow-hidden">
-                <img src={`${storageUrl}${photo.storage_path}`} alt="" className="w-full aspect-square object-cover bg-muted" />
+              <li key={photo.id} className="overflow-hidden rounded-md border border-rule bg-card">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`${storageUrl}${photo.storage_path}`}
+                  alt={photo.caption || `Photo uploaded by ${photo.uploader?.full_name ?? 'a member'}`}
+                  className="aspect-square w-full object-cover bg-rule"
+                />
                 <div className="p-3 text-sm">
-                  <p className="font-medium truncate">{!Array.isArray(photo.uploader) ? (photo.uploader as any)?.full_name : ''}</p>
-                  <div className="flex gap-2 mt-3">
-                    <Button size="sm" onClick={() => handlePhoto(photo.id, 'approved')} className="flex-1 bg-brass hover:bg-brass/90">Approve</Button>
-                    <Button size="sm" variant="outline" onClick={() => handlePhoto(photo.id, 'rejected')} className="flex-1 text-red-600">Reject</Button>
+                  <p className="truncate font-medium">{photo.uploader?.full_name ?? 'Unknown member'}</p>
+                  <div className="mt-3 flex gap-2">
+                    <Button size="sm" onClick={() => handlePhoto(photo.id, 'approved')} className="flex-1" disabled={pending}>Approve</Button>
+                    <Button size="sm" variant="destructive" onClick={() => handlePhoto(photo.id, 'rejected')} className="flex-1" disabled={pending}>Reject</Button>
                   </div>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </section>
 
-      <section>
-        <h2 className="text-xl font-medium border-b border-rule pb-2 mb-4">Reported Comments ({comments.length})</h2>
+      <section aria-labelledby="comments-heading">
+        <h2 id="comments-heading" className="text-xl font-serif border-b border-rule pb-2 mb-4">
+          Reported comments <span className="text-slate tabular-nums">({comments.length})</span>
+        </h2>
         {comments.length === 0 ? (
-          <p className="text-slate text-sm">No reported comments.</p>
+          <p className="text-slate text-sm">No comments have been reported.</p>
         ) : (
-          <div className="space-y-4">
+          <ul className="space-y-4">
             {comments.map(comment => (
-              <div key={comment.id} className="border border-rule rounded-md bg-card p-4 space-y-3">
-                <p className="font-medium text-sm text-ink">{!Array.isArray(comment.author) ? (comment.author as any)?.full_name : ''}</p>
-                <p className="text-sm bg-muted p-3 rounded-md">{comment.body}</p>
+              <li key={comment.id} className="space-y-3 rounded-md border border-rule bg-card p-4">
+                <p className="text-sm font-medium">{comment.author?.full_name ?? 'Unknown member'}</p>
+                <p className="whitespace-pre-wrap rounded-md bg-paper p-3 text-sm">{comment.body}</p>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleComment(comment.id, 'approved')} className="bg-brass hover:bg-brass/90">Keep (Approve)</Button>
-                  <Button size="sm" variant="outline" onClick={() => handleComment(comment.id, 'rejected')} className="text-red-600">Delete (Reject)</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleComment(comment.id, 'keep')} disabled={pending}>Keep comment</Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleComment(comment.id, 'remove')} disabled={pending}>Remove comment</Button>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </section>
     </div>

@@ -2,14 +2,31 @@ import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe/client'
 import { NextRequest, NextResponse } from 'next/server'
 
+// /me/membership posts a plain HTML form; API callers send JSON. A form gets
+// a 303 to Stripe (or back to the page with an error), JSON gets JSON.
+function isForm(req: NextRequest) {
+  const type = req.headers.get('content-type') ?? ''
+  return type.includes('application/x-www-form-urlencoded') || type.includes('multipart/form-data')
+}
+
 export async function POST(req: NextRequest) {
+  const form = isForm(req)
+  const fail = (error: string, status: number) =>
+    form
+      ? NextResponse.redirect(new URL(`/me/membership?checkout=error&reason=${encodeURIComponent(error)}`, req.nextUrl.origin), 303)
+      : NextResponse.json({ error }, { status })
+
   try {
-    const { tierSlug } = await req.json()
-    if (!tierSlug) return NextResponse.json({ error: 'Missing tierSlug' }, { status: 400 })
+    const tierSlug = form ? (await req.formData()).get('tierSlug')?.toString() : (await req.json()).tierSlug
+    if (!tierSlug) return fail('Missing tierSlug', 400)
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      return form
+        ? NextResponse.redirect(new URL('/login?next=/me/membership', req.nextUrl.origin), 303)
+        : NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     // Lookup tier
     const { data: tier } = await supabase
@@ -19,7 +36,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (!tier || !tier.stripe_price_id) {
-      return NextResponse.json({ error: 'Tier not found or missing price' }, { status: 400 })
+      return fail('Tier not found or missing price', 400)
     }
 
     // Lookup existing stripe customer
@@ -59,9 +76,10 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create(sessionData)
 
+    if (form && session.url) return NextResponse.redirect(session.url, 303)
     return NextResponse.json({ url: session.url })
   } catch (error: any) {
     console.error('Checkout error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return fail('Checkout could not be started', 500)
   }
 }

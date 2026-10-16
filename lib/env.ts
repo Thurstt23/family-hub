@@ -11,6 +11,8 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   EMAIL_FROM: z.string().min(1),
   CRON_SECRET: z.string().min(1),
+  // optional: where webhook and cron failures are emailed (09, section 7)
+  ALERT_EMAIL: z.string().email().optional().or(z.literal('')),
   // R2 is from phase 6 onward, so we can make them optional for now or required if they are in env.example.
   // The spec says "validating every variable in 09 section 2", so let's make them optional for Phase 0.
   R2_ACCOUNT_ID: z.string().optional(),
@@ -31,6 +33,7 @@ export const env = envSchema.parse({
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM,
   CRON_SECRET: process.env.CRON_SECRET,
+  ALERT_EMAIL: process.env.ALERT_EMAIL,
   R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
   R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
   R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,

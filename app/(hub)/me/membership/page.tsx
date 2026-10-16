@@ -2,13 +2,14 @@ import { requireActiveMember } from '@/lib/auth/guards'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { format } from 'date-fns'
+import { RefreshUntil } from './refresh-until'
 
 export const dynamic = 'force-dynamic'
 
 export default async function MembershipPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string }>
+  searchParams: Promise<{ checkout?: string; portal?: string; reason?: string }>
 }) {
   const { user } = await requireActiveMember()
   const supabase = await createClient()
@@ -43,8 +44,22 @@ export default async function MembershipPage({
       </div>
 
       {sp.checkout === 'success' && (
-        <div className="bg-green-50 text-green-800 p-4 rounded-md border border-green-200">
-          Payment successful! Your membership has been updated.
+        isFree ? (
+          // Entitlement is written only by the webhook (02, section 5), which can
+          // land a few seconds after Stripe redirects back. Re-read until it does.
+          <div role="status" className="p-4 rounded-md border border-rule bg-card">
+            Payment received. Confirming your membership with Stripe…
+            <RefreshUntil seconds={30} />
+          </div>
+        ) : (
+          <div role="status" className="p-4 rounded-md border border-sage/40 bg-sage/10">
+            Payment received. Your membership is now {currentTierName}.
+          </div>
+        )
+      )}
+      {(sp.checkout === 'error' || sp.portal === 'error') && (
+        <div role="alert" className="p-4 rounded-md border border-clay/40 bg-clay/10 text-clay">
+          {sp.reason ?? 'Something went wrong.'} Try again, or contact a family administrator if it keeps happening.
         </div>
       )}
 
@@ -61,7 +76,7 @@ export default async function MembershipPage({
             <p>You have a lifetime membership. It never expires.</p>
           )}
           {membership?.status === 'past_due' && (
-            <p className="text-red-600 font-medium">Your last payment failed. Please update your payment method.</p>
+            <p className="text-clay font-medium">Your last payment failed. Update your card in the billing portal below.</p>
           )}
           
           {!isFree && (

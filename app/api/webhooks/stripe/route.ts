@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe/client'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { sendPaymentFailed } from '@/lib/email/send'
+import { alertOps } from '@/lib/observability/alert'
 
 export const runtime = 'nodejs'          // required: Edge cannot verify raw body reliably
 export const dynamic = 'force-dynamic'
@@ -27,13 +29,20 @@ async function handleEvent(event: Stripe.Event) {
         const tierId = session.metadata?.tier_id
         if (!tierId) throw new Error('Missing tier_id in metadata')
 
-        await supabaseAdmin.from('memberships').upsert({
+        // Every user already has a membership row from signup, so the conflict
+        // target must be user_id; without it the upsert collides and fails.
+        const { error } = await supabaseAdmin.from('memberships').upsert({
           user_id: userId,
           tier_id: tierId,
           stripe_customer_id: session.customer as string,
           status: 'active',
-          current_period_end: null // lifetime
-        })
+          current_period_end: null, // lifetime
+          cancel_at_period_end: false,
+          override_note: null,
+          override_by: null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+        if (error) throw new Error(`membership upsert failed: ${error.message}`)
 
         await supabaseAdmin.from('audit_log').insert({
           action: 'membership.sync',
@@ -64,11 +73,13 @@ async function handleEvent(event: Stripe.Event) {
       
       const { data: freeTier } = await supabaseAdmin.from('membership_tiers').select('id').eq('slug', 'free').single()
       
-      await supabaseAdmin.from('memberships').update({
+      const { error } = await supabaseAdmin.from('memberships').update({
         tier_id: freeTier!.id,
         status: 'canceled',
-        stripe_subscription_id: null
+        stripe_subscription_id: null,
+        updated_at: new Date().toISOString(),
       }).eq('user_id', userId)
+      if (error) throw new Error(`membership downgrade failed: ${error.message}`)
 
       await supabaseAdmin.from('audit_log').insert({
         action: 'membership.sync',
@@ -89,27 +100,51 @@ async function handleEvent(event: Stripe.Event) {
       }
 
       const inv = invoice as any
-      await supabaseAdmin.from('payments').insert({
+      // Upsert on the invoice id: a replayed event, or a paid invoice that
+      // earlier failed, updates the one row instead of adding another.
+      const { error } = await supabaseAdmin.from('payments').upsert({
         user_id: finalUserId || null,
         stripe_invoice_id: inv.id,
-        stripe_pi_id: inv.payment_intent as string,
+        stripe_pi_id: (inv.payment_intent as string) ?? null,
         amount_cents: inv.amount_paid,
         currency: inv.currency,
         status: 'paid',
+        description: inv.lines?.data?.[0]?.description ?? null,
         receipt_url: inv.hosted_invoice_url,
-        paid_at: new Date(inv.status_transitions?.paid_at! * 1000).toISOString()
-      })
+        paid_at: inv.status_transitions?.paid_at ? new Date(inv.status_transitions.paid_at * 1000).toISOString() : new Date().toISOString(),
+      }, { onConflict: 'stripe_invoice_id' })
+      if (error) throw new Error(`payments upsert failed: ${error.message}`)
       break
     }
     case 'invoice.payment_failed': {
       const invoice = event.data.object as Stripe.Invoice
+      const inv = invoice as any
       const customer = invoice.customer as string
-      
-      const { data: membership } = await supabaseAdmin.from('memberships').select('user_id').eq('stripe_customer_id', customer).single()
+
+      const { data: membership } = await supabaseAdmin.from('memberships').select('user_id').eq('stripe_customer_id', customer).maybeSingle()
       if (membership) {
         await supabaseAdmin.from('memberships').update({ status: 'past_due' }).eq('user_id', membership.user_id)
-        // Note: sending the update your card email with a Billing Portal link is omitted for brevity,
-        // but it would trigger Resend here.
+      }
+
+      // Recorded so the admin dashboard can list failed payments (06, section 2).
+      // Never overwrite a row that has since been paid.
+      const { data: existing } = await supabaseAdmin.from('payments').select('status').eq('stripe_invoice_id', inv.id).maybeSingle()
+      if (!existing) {
+        await supabaseAdmin.from('payments').insert({
+          user_id: membership?.user_id ?? null,
+          stripe_invoice_id: inv.id,
+          amount_cents: inv.amount_due ?? 0,
+          currency: inv.currency,
+          status: 'failed',
+          receipt_url: inv.hosted_invoice_url ?? null,
+        })
+      } else if (existing.status !== 'paid') {
+        await supabaseAdmin.from('payments').update({ status: 'failed' }).eq('stripe_invoice_id', inv.id)
+      }
+
+      if (membership) {
+        const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', membership.user_id).maybeSingle()
+        if (profile) await sendPaymentFailed(profile)
       }
       break
     }
@@ -130,15 +165,19 @@ async function handleSubscription(sub: Stripe.Subscription) {
   if (!tier) throw new Error(`Unmapped price ${priceId}`)
 
   const s = sub as any
-  await supabaseAdmin.from('memberships').upsert({
+  const { error } = await supabaseAdmin.from('memberships').upsert({
     user_id: userId,
     tier_id: tier.id,
     status: s.status,
     stripe_customer_id: s.customer as string,
     stripe_subscription_id: s.id,
     current_period_end: new Date(s.current_period_end * 1000).toISOString(),
-    cancel_at_period_end: s.cancel_at_period_end
-  })
+    cancel_at_period_end: s.cancel_at_period_end,
+    override_note: null,
+    override_by: null,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' })
+  if (error) throw new Error(`membership upsert failed: ${error.message}`)
 
   await supabaseAdmin.from('audit_log').insert({
     action: 'membership.sync',
@@ -172,7 +211,11 @@ export async function POST(req: Request) {
   } catch (err) {
     // remove the ledger row so Stripe's retry can reprocess
     await supabaseAdmin.from('stripe_events').delete().eq('id', event.id)
-    console.error('Webhook error:', err)
+    await alertOps('stripe.webhook.failed', {
+      event_id: event.id,
+      type: event.type,
+      error: err instanceof Error ? err.message : String(err),
+    })
     return new Response('handler failed', { status: 500 })
   }
 

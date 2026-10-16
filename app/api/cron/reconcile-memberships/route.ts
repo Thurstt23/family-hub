@@ -1,14 +1,34 @@
-import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { isAuthorizedCron } from '@/lib/cron/auth'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe/client'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
-  const cronSecret = (await headers()).get('CRON_SECRET')
-  if (cronSecret !== process.env.CRON_SECRET) {
+  if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: freeTierRow } = await supabaseAdmin.from('membership_tiers').select('id').eq('slug', 'free').single()
+
+  // 0. Manual overrides (membership.override) carry an expiry but no Stripe
+  // subscription. current_tier_level() already ignores them once lapsed; this
+  // puts the row itself back to free so the admin screens agree.
+  const { data: lapsedOverrides } = await supabaseAdmin
+    .from('memberships')
+    .update({ tier_id: freeTierRow!.id, status: 'active', current_period_end: null, cancel_at_period_end: false, override_note: null, override_by: null })
+    .lt('current_period_end', new Date().toISOString())
+    .is('stripe_subscription_id', null)
+    .not('override_note', 'is', null)
+    .select('user_id')
+  for (const m of lapsedOverrides ?? []) {
+    await supabaseAdmin.from('audit_log').insert({
+      action: 'membership.reconcile',
+      entity: 'memberships',
+      entity_id: m.user_id,
+      meta: { action: 'override_expired' },
+    })
   }
 
   // 1. Select memberships where current_period_end < now() and status = 'active'
@@ -20,10 +40,10 @@ export async function GET(req: Request) {
     .not('stripe_subscription_id', 'is', null)
 
   if (!expired || expired.length === 0) {
-    return NextResponse.json({ message: 'Nothing to reconcile' })
+    return NextResponse.json({ message: 'Nothing to reconcile', overridesExpired: lapsedOverrides?.length ?? 0 })
   }
 
-  const { data: freeTier } = await supabaseAdmin.from('membership_tiers').select('id').eq('slug', 'free').single()
+  const freeTier = freeTierRow
 
   let count = 0
   for (const m of expired) {
@@ -76,5 +96,5 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ message: 'Reconciled', count })
+  return NextResponse.json({ message: 'Reconciled', count, overridesExpired: lapsedOverrides?.length ?? 0 })
 }

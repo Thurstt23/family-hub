@@ -117,6 +117,36 @@ export type Database = {
           },
         ]
       }
+      branch_stewards: {
+        Row: {
+          branch_id: string
+          user_id: string
+        }
+        Insert: {
+          branch_id: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branch_stewards_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "family_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "branch_stewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           author_id: string | null
@@ -165,6 +195,35 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_preferences: {
+        Row: {
+          announcements: boolean
+          unsubscribe_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          announcements?: boolean
+          unsubscribe_token?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          announcements?: boolean
+          unsubscribe_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -361,6 +420,8 @@ export type Database = {
       }
       memberships: {
         Row: {
+          override_by: string | null
+          override_note: string | null
           cancel_at_period_end: boolean
           current_period_end: string | null
           id: string
@@ -373,6 +434,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          override_by?: string | null
+          override_note?: string | null
           cancel_at_period_end?: boolean
           current_period_end?: string | null
           id?: string
@@ -385,6 +448,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          override_by?: string | null
+          override_note?: string | null
           cancel_at_period_end?: boolean
           current_period_end?: string | null
           id?: string
@@ -622,6 +687,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           avatar_url: string | null
           bio: string | null
           birthday: string | null
@@ -644,6 +712,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           avatar_url?: string | null
           bio?: string | null
           birthday?: string | null
@@ -666,6 +737,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           avatar_url?: string | null
           bio?: string | null
           birthday?: string | null
@@ -760,6 +834,7 @@ export type Database = {
     }
     Functions: {
       active_member_count: { Args: never; Returns: number }
+      admin_dashboard_stats: { Args: never; Returns: Json }
       branch_member_counts: {
         Args: never
         Returns: {
@@ -774,8 +849,10 @@ export type Database = {
       }
       is_active_member: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
+      is_branch_steward: { Args: { target_branch: string }; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       show_limit: { Args: never; Returns: number }
+      unsubscribe_by_token: { Args: { p_token: string }; Returns: boolean }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
