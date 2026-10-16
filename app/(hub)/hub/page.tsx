@@ -15,7 +15,7 @@ export default async function HubPage() {
     .select(`
       id, created_at, body,
       author:profiles!posts_author_id_fkey(id, full_name, avatar_url),
-      photos(id, storage_path),
+      photos(id, storage_path, caption),
       comments(id, body, created_at, author:profiles(full_name, avatar_url)),
       post_likes(user_id)
     `)

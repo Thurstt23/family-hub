@@ -30,16 +30,16 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold font-serif text-ink">Reset password</h1>
-          <p className="text-ink-muted">Enter your email and we&apos;ll send you a reset link.</p>
+          <p className="text-slate">Enter your email and we&apos;ll send you a reset link.</p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-100 text-red-800 rounded-md text-sm">
+          <div role="alert" className="p-3 bg-clay/10 text-clay border border-clay/30 rounded-md text-sm">
             {error}
           </div>
         )}
         {success && (
-          <div className="p-3 bg-green-100 text-green-800 rounded-md text-sm">
+          <div role="status" className="p-3 bg-sage/10 text-[#3F5A46] border border-sage/40 rounded-md text-sm">
             {success}
           </div>
         )}

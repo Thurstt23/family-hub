@@ -70,12 +70,12 @@ export function MultiUpload({ albumId }: { albumId?: string }) {
         accept="image/*"
         onChange={handleUpload}
         disabled={uploading}
-        className="hidden"
+        className="peer sr-only"
         id="multi-upload-input"
       />
       <label 
         htmlFor="multi-upload-input" 
-        className={`cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''} inline-flex items-center justify-center rounded-lg bg-brass px-4 py-2 text-sm font-medium text-white hover:bg-brass/90`}
+        className={`peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brass cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''} inline-flex items-center justify-center rounded-lg bg-brass px-4 py-2 text-sm font-medium text-white hover:bg-brass/90`}
       >
         {uploading ? 'Uploading...' : 'Upload Photos'}
       </label>

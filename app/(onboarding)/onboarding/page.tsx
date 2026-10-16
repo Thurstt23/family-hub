@@ -13,7 +13,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   // Check if they already onboarded
   const { data: profile } = await supabase
     .from('profiles')
-    .select('status, branch_id, full_name')
+    .select('status, branch_id, full_name, rejection_reason')
     .eq('id', user.id)
     .single()
 
@@ -21,7 +21,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
     redirect('/hub')
   }
 
-  if (profile?.branch_id && profile?.status === 'pending') {
+  // A declined request stays pending with a note; let that member revise it.
+  if (profile?.branch_id && profile?.status === 'pending' && !profile.rejection_reason) {
     redirect('/pending')
   }
 
@@ -36,11 +37,11 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
       <div className="w-full max-w-lg space-y-6">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold font-serif text-ink">Welcome to Martin Sawyer Reunion</h1>
-          <p className="text-ink-muted">Please complete your profile to request access.</p>
+          <p className="text-slate">Please complete your profile to request access.</p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-100 text-red-800 rounded-md text-sm">
+          <div role="alert" className="p-3 bg-clay/10 text-clay border border-clay/30 rounded-md text-sm">
             {error}
           </div>
         )}

@@ -76,19 +76,22 @@ export function PostComposer() {
     <div className="bg-card border border-rule rounded-md p-4 space-y-4">
       <textarea 
         placeholder="What's new with your branch?"
+        aria-label="Write a post"
         value={body}
         onChange={e => setBody(e.target.value)}
-        className="w-full bg-transparent min-h-[100px] border-none focus-visible:outline-none resize-none text-ink placeholder:text-slate"
+        className="w-full bg-transparent min-h-[100px] border-none resize-none text-ink placeholder:text-slate"
       />
       
       {files.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {files.map((f, i) => (
             <div key={i} className="relative aspect-square bg-muted rounded-md overflow-hidden group">
-              <img src={URL.createObjectURL(f)} alt="" className="object-cover w-full h-full" />
+              <img src={URL.createObjectURL(f)} alt={`Selected photo ${i + 1}`} className="object-cover w-full h-full" />
               <button 
+                type="button"
+                aria-label={`Remove photo ${i + 1}`}
                 onClick={() => removeFile(i)}
-                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -98,10 +101,10 @@ export function PostComposer() {
       )}
 
       <div className="flex items-center justify-between border-t border-rule pt-4">
-        <label className="cursor-pointer text-brass hover:text-brass/80 inline-flex items-center gap-2">
+        <label className="cursor-pointer text-brass hover:text-brass/80 inline-flex items-center gap-2 rounded-sm focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brass">
           <ImagePlus className="w-5 h-5" />
           <span className="text-sm font-medium">Add Photo</span>
-          <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} disabled={isSubmitting || files.length >= 4} />
+          <input type="file" accept="image/*" multiple className="sr-only" onChange={handleFileChange} disabled={isSubmitting || files.length >= 4} />
         </label>
         
         <Button onClick={handleSubmit} disabled={isSubmitting || (!body.trim() && files.length === 0)}>

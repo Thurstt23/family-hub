@@ -25,7 +25,7 @@ export default async function SuspendedPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6 text-center">
         <h1 className="text-3xl font-bold font-serif text-ink">Account Suspended</h1>
-        <p className="text-ink-muted">
+        <p className="text-slate">
           Your account has been suspended by an administrator. If you believe this is 
           a mistake, please contact a family steward.
         </p>

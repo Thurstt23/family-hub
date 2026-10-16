@@ -64,8 +64,10 @@ export async function signInWithGoogle(next?: string | null) {
     },
   })
 
-  if (error) throw error
-  if (data.url) redirect(data.url)
+  if (error || !data.url) {
+    redirect(`/login?error=${encodeURIComponent('Google sign in is not available right now. Use your email instead.')}`)
+  }
+  redirect(data.url)
 }
 
 export async function signInWithMagicLink(formData: FormData) {

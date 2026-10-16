@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Karla, Newsreader } from "next/font/google";
 import { env } from "@/lib/env";
 import "./globals.css";
@@ -31,6 +31,10 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#10233A',
 };
 
 export default function RootLayout({

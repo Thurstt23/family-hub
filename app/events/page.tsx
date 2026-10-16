@@ -54,7 +54,7 @@ export default async function EventsPage() {
       />
       <SiteHeader current="/events" />
 
-      <main className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
+      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
         <div className="flex items-end justify-between border-b border-border pb-6 mb-12">
           <h1 className="font-serif text-4xl md:text-5xl font-medium">Upcoming Events</h1>
         </div>

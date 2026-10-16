@@ -12,7 +12,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader current="/about" />
 
-      <main className="flex-1 py-16 px-6 lg:px-12 max-w-3xl mx-auto w-full">
+      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-3xl mx-auto w-full">
         <h1 className="font-serif text-4xl md:text-5xl font-medium mb-12">About Our Family</h1>
         <div className="prose prose-lg prose-headings:font-serif prose-p:text-ink max-w-none">
           <p>

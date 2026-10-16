@@ -105,3 +105,14 @@ export async function uploadAvatar(formData: FormData) {
   revalidatePath('/me')
   return { success: true, url: publicUrl }
 }
+
+export async function setAnnouncementEmails(_prev: { ok: boolean; message: string } | null, formData: FormData) {
+  const { supabase, user } = await requireActiveMember()
+  const on = formData.get('announcements') === 'on'
+  const { error } = await supabase
+    .from('email_preferences')
+    .upsert({ user_id: user.id, announcements: on, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+  if (error) return { ok: false, message: 'Your email setting could not be saved. Try again.' }
+  revalidatePath('/me')
+  return { ok: true, message: on ? 'You will receive the weekly announcement email.' : 'Weekly announcement emails are off.' }
+}

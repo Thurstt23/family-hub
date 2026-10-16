@@ -75,7 +75,7 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                   <div key={photo.id} className="relative aspect-square bg-muted rounded-md overflow-hidden">
                     <img 
                       src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${photo.storage_path}`} 
-                      alt="" 
+                      alt={photo.caption || `Photograph shared by ${post.author?.full_name ?? 'a member'}`}
                       className="w-full h-full object-cover" 
                     />
                   </div>
@@ -85,14 +85,20 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
 
             <div className="flex items-center gap-4 pt-2 border-t border-rule text-slate">
               <button 
+                type="button"
+                aria-pressed={post.hasLiked}
+                aria-label={`${post.hasLiked ? 'Unlike' : 'Like'} this post, ${post.likesCount} likes`}
                 onClick={() => handleLike(post.id, post.hasLiked)}
-                className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${post.hasLiked ? 'text-red-500' : 'hover:text-ink'}`}
+                className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${post.hasLiked ? 'text-clay' : 'hover:text-ink'}`}
               >
                 <Heart className={`w-5 h-5 ${post.hasLiked ? 'fill-current' : ''}`} />
                 {post.likesCount}
               </button>
               
               <button 
+                type="button"
+                aria-expanded={activeCommentPost === post.id}
+                aria-label={`Comments, ${post.commentsCount}`}
                 onClick={() => setActiveCommentPost(activeCommentPost === post.id ? null : post.id)}
                 className="flex items-center gap-1.5 text-sm font-medium hover:text-ink transition-colors"
               >
@@ -109,7 +115,7 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                     <div key={c.id} className="flex gap-3 text-sm group">
                       <div className="w-8 h-8 rounded-full bg-muted overflow-hidden shrink-0 border border-rule">
                         {author?.avatar_url && (
-                          <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${author.avatar_url}`} alt="" className="w-full h-full object-cover" />
+                          <img src={author.avatar_url.startsWith('http') ? author.avatar_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${author.avatar_url}`} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div className="bg-muted px-3 py-2 rounded-md flex-1 relative">
@@ -117,6 +123,8 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                         <p className="text-ink">{c.body}</p>
                         {author?.id !== userId && (
                           <button 
+                            type="button"
+                            aria-label={`Report comment by ${author?.full_name ?? 'a member'}`}
                             onClick={async () => {
                               if (confirm('Report this comment to moderators?')) {
                                 try {
@@ -126,7 +134,7 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                                 } catch (e: any) { alert(e.message) }
                               }
                             }}
-                            className="absolute top-2 right-2 text-xs text-slate opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                            className="absolute top-2 right-2 text-xs text-slate opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-clay transition-all"
                           >
                             Report
                           </button>
@@ -139,11 +147,13 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                   <input 
                     type="text"
                     placeholder="Write a comment..."
+                    aria-label="Write a comment"
                     value={commentContent}
                     onChange={e => setCommentContent(e.target.value)}
                     className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <button 
+                    type="button"
                     onClick={() => handleComment(post.id)}
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-brass text-card px-4 py-2 hover:bg-brass/90"
                   >

@@ -52,7 +52,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader current="/events" />
 
-      <main className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
+      <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
         <div className="mb-12 border-b border-rule pb-6">
           <p className="text-brass font-medium uppercase tracking-widest text-sm mb-4">
             {format(new Date(event.starts_at), 'EEEE, d MMMM yyyy')}

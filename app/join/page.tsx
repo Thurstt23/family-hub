@@ -14,7 +14,7 @@ export default function JoinPage() {
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader current="/join" />
 
-      <main className="flex-1 py-24 px-6 lg:px-12 max-w-2xl mx-auto w-full text-center space-y-12">
+      <main id="main" className="flex-1 py-24 px-6 lg:px-12 max-w-2xl mx-auto w-full text-center space-y-12">
         <div className="space-y-6">
           <h1 className="font-serif text-4xl md:text-5xl font-medium">Join the Register</h1>
           <p className="text-xl text-slate leading-relaxed">

@@ -45,7 +45,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-paper text-ink flex flex-col">
       <SiteHeader />
 
-      <main className="flex-1 flex flex-col">
+      <main id="main" className="flex-1 flex flex-col">
         <section className="relative w-full h-[75vh] min-h-[600px] flex flex-col justify-end p-6 lg:p-12">
           {/* Full bleed archival photograph with ink overlay 40% */}
           <div className="absolute inset-0 bg-ink">

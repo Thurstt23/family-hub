@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth/guards'
+import { sendPendingReceived } from '@/lib/email/send'
 
 export async function submitOnboarding(formData: FormData) {
   const { user, supabase } = await requireUser()
@@ -40,6 +41,13 @@ export async function submitOnboarding(formData: FormData) {
 
   if (error) {
     redirect(`/onboarding?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // "We received your request" (04, section 7). Only on the first completed
+  // onboarding, not when a declined member edits their details again.
+  const { data: current } = await supabase.from('profiles').select('status, reviewed_at').eq('id', user.id).single()
+  if (current?.status === 'pending' && !current.reviewed_at) {
+    await sendPendingReceived({ email: user.email ?? null, full_name: fullName })
   }
 
   revalidatePath('/')

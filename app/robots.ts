@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: ['/', '/about', '/events', '/join'],
-      disallow: ['/hub', '/admin', '/directory', '/onboarding', '/me', '/posts', '/gallery'],
+      disallow: ['/hub', '/admin', '/directory', '/onboarding', '/me', '/posts', '/gallery', '/unsubscribe', '/api'],
     },
     sitemap: `${env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`,
   }

@@ -38,7 +38,8 @@
   --color-destructive: var(--color-clay);
   --color-destructive-foreground: var(--color-card);
 
-  --color-muted: var(--color-slate);
+  /* a quiet surface one step darker than paper; ink on it stays above 12:1 */
+  --color-muted: #E3E6E2;
   --color-muted-foreground: var(--color-slate);
 
   --radius-sm: calc(var(--radius) * 0.6);
@@ -87,5 +88,30 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
+  }
+}
+
+/*
+  Accessibility floor (07, section 7).
+  Brass focus ring at 2px offset on every interactive element, including the
+  ones that do not use the shadcn ring utilities.
+*/
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion turns off every transition and animation, including the
+   hero reveal, rather than just shortening them. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
