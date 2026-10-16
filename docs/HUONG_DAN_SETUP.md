@@ -59,16 +59,19 @@ Cả bốn lệnh phải pass. `pnpm test:db` quan trọng nhất: nó chứng m
 Trước khi push migration lên project thật, hãy tạo một bản sao lưu:
 
 1. Supabase Dashboard → project `martin-sawyer-reunion-prod` → **Database → Backups**: xác nhận có bản backup hằng ngày gần nhất (gói free giữ 7 ngày).
-2. Dump thủ công thêm cho chắc:
+2. Dump thủ công thêm cho chắc. Lệnh `pnpm db:dump` (`supabase db dump`) **cần Docker**. Máy chưa có Docker thì dùng `pg_dump` của PostgreSQL:
+   - Cài **PostgreSQL 17** cho Windows (<https://www.postgresql.org/download/windows/>). Khi cài, chỉ cần tick "Command Line Tools".
+   - Lấy connection string: Dashboard → **Connect** → **Session pooler** → copy URI, rồi thay `[YOUR-PASSWORD]` bằng mật khẩu database.
+   - Chạy (PowerShell):
 
-   ```bash
-   pnpm exec supabase login                       # nếu chưa đăng nhập CLI
-   pnpm exec supabase link --project-ref jzsgvmcrckaurxhkhpil
-   mkdir backups
-   pnpm db:dump                                   # ra backups/schema.sql và backups/data.sql
-   ```
+     ```powershell
+     mkdir backups
+     & "C:\Program Files\PostgreSQLin\pg_dump.exe" "postgresql://postgres.jzsgvmcrckaurxhkhpil:MAT_KHAU@aws-0-us-east-1.pooler.supabase.com:5432/postgres" -Fc -f backups\prod-truoc-0011.dump
+     ```
 
-   Thư mục `backups/` đã nằm trong `.gitignore`. File này chứa email và số điện thoại thành viên, **không gửi đi đâu cả**.
+     Ra một file vài trăm KB đến vài MB là được. Thư mục `backups/` đã nằm trong `.gitignore`. File này chứa email và số điện thoại thành viên, **không gửi đi đâu cả**.
+
+   Các migration 0011–0016 chỉ **thêm** bảng, cột, policy và hàm; không xoá dữ liệu nào. Rủi ro mất dữ liệu thấp, nhưng vẫn nên có bản dump này.
 
 ---
 
