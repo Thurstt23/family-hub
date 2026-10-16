@@ -16,6 +16,7 @@ export function ProfileForm({
 }) {
   const [isPending, startTransition] = useTransition()
   const [isUploading, setIsUploading] = useState(false)
+  const [avatarMessage, setAvatarMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +24,7 @@ export function ProfileForm({
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('File must be less than 10MB')
+      setAvatarMessage({ ok: false, text: 'That photo is larger than 10MB. Choose a smaller one.' })
       return
     }
 
@@ -32,12 +33,13 @@ export function ProfileForm({
     fd.append('avatar', file)
     
     try {
-      await uploadAvatar(fd)
-      alert('Avatar updated')
-    } catch (err: any) {
-      alert(`Error uploading: ${err.message}`)
+      const res = await uploadAvatar(fd)
+      setAvatarMessage(res.ok ? { ok: true, text: 'Photo updated.' } : { ok: false, text: res.error })
+    } catch {
+      setAvatarMessage({ ok: false, text: 'The photo could not be uploaded. Try again.' })
     } finally {
       setIsUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -63,6 +65,8 @@ export function ProfileForm({
             type="file" 
             accept="image/*" 
             className="hidden" 
+            aria-label="Profile photo"
+            data-testid="avatar-input"
             ref={fileInputRef} 
             onChange={handleAvatarChange} 
           />
@@ -74,6 +78,11 @@ export function ProfileForm({
             {isUploading ? 'Uploading...' : 'Change Avatar'}
           </Button>
           <p className="text-sm text-slate mt-2">JPG, PNG or WEBP. Max 10MB.</p>
+          {avatarMessage ? (
+            <p role={avatarMessage.ok ? 'status' : 'alert'} className={avatarMessage.ok ? 'text-sm text-[#3F5A46] mt-1' : 'text-sm text-clay mt-1'}>
+              {avatarMessage.text}
+            </p>
+          ) : null}
         </div>
       </div>
 

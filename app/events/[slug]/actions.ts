@@ -3,12 +3,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function submitRsvp(eventId: string, slug: string, formData: FormData) {
+export async function submitRsvp(eventId: string, slug: string, formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    throw new Error('Not authenticated')
+    return { ok: false, error: 'Sign in to RSVP.' }
   }
 
   const status = formData.get('status') as 'going' | 'maybe' | 'declined'
@@ -29,11 +29,15 @@ export async function submitRsvp(eventId: string, slug: string, formData: FormDa
     })
 
   if (error) {
-    if (error.message.includes('Event capacity reached')) {
-      throw new Error('This event is full or there are not enough spots for your guests.')
+    if (error.message.includes('RSVP deadline has passed')) {
+      return { ok: false, error: 'The RSVP deadline for this event has passed.' }
     }
-    throw new Error(error.message)
+    if (error.message.includes('Event capacity reached')) {
+      return { ok: false, error: 'This event is full, or there are not enough places for your guests. Choose fewer guests or Maybe.' }
+    }
+    return { ok: false, error: 'Your RSVP could not be saved. Try again.' }
   }
 
   revalidatePath(`/events/${slug}`)
+  return { ok: true }
 }

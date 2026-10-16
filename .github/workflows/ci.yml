@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Typecheck, unit tests, build, bundle secret scan
+    runs-on: ubuntu-latest
+    env:
+      # Placeholders that satisfy lib/env.ts. They are long and distinctive so
+      # scripts/check-bundle-secrets.mjs can prove none of them reach the browser.
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key-placeholder-public
+      SUPABASE_SERVICE_ROLE_KEY: ci-service-role-placeholder-must-never-ship
+      STRIPE_SECRET_KEY: sk_test_ciplaceholder000000000000
+      STRIPE_WEBHOOK_SECRET: whsec_ciplaceholder000000000000
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ciplaceholder
+      RESEND_API_KEY: re_ci_placeholder_000000000000
+      EMAIL_FROM: Martin Sawyer Reunion <ci@example.test>
+      CRON_SECRET: ci-cron-secret-placeholder-0000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: No server secret in the client bundle
+        run: pnpm check:bundle
+
+  e2e:
+    name: End-to-end against local Supabase
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start Supabase and load migrations and seed
+        run: |
+          pnpm exec supabase start
+          pnpm exec supabase db reset
+      - name: Write .env.local from the local stack
+        run: |
+          eval "$(pnpm exec supabase status -o env)"
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_SITE_URL=http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL=$API_URL
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY
+          SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY
+          STRIPE_SECRET_KEY=sk_test_ciplaceholder000000000000
+          STRIPE_WEBHOOK_SECRET=whsec_ciplaceholder000000000000
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_ciplaceholder
+          RESEND_API_KEY=re_ci_placeholder_000000000000
+          EMAIL_FROM=Martin Sawyer Reunion <ci@example.test>
+          CRON_SECRET=ci-cron-secret-placeholder-0000
+          EOF
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - name: RSVP capacity race
+        run: pnpm race:rsvp
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14

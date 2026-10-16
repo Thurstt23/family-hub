@@ -1,0 +1,48 @@
+name: Weekly database backup
+
+# 09, section 6: a weekly dump kept off Supabase, on top of Supabase's own
+# daily backups. The dump is encrypted before it is stored as an artifact,
+# because it contains every member's contact details.
+#
+# Repository secrets required:
+#   SUPABASE_DB_URL     postgres connection string of the production project
+#                       (Supabase dashboard, Project Settings, Database, URI,
+#                       "Session pooler"), password included
+#   BACKUP_PASSPHRASE   long random passphrase; store a copy in the family
+#                       password manager, without it the backup is useless
+
+on:
+  schedule:
+    - cron: '0 6 * * 0' # Sundays 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Dump schema and data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f backup/data.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f backup/roles.sql
+          ls -la backup
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          stamp=$(date -u +%Y-%m-%d)
+          tar czf "backup-$stamp.tar.gz" backup
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+              --symmetric --cipher-algo AES256 -o "backup-$stamp.tar.gz.gpg" "backup-$stamp.tar.gz"
+          rm -rf backup "backup-$stamp.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup-*.tar.gz.gpg
+          retention-days: 90

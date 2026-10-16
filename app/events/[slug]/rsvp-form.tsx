@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { submitRsvp } from './actions'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NativeSelect } from '@/components/ui/native-select'
 import { Input } from '@/components/ui/input'
 
 export function RsvpForm({ 
@@ -20,15 +20,17 @@ export function RsvpForm({
   isPastDeadline: boolean
 }) {
   const [isPending, startTransition] = useTransition()
-  const [status, setStatus] = useState<'going'|'maybe'|'declined'>(rsvp?.status || 'going')
+  const [status, setStatus] = useState<'going'|'maybe'|'declined'>(rsvp?.status || (isFull ? 'maybe' : 'going'))
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    startTransition(() => {
-      submitRsvp(event.id, event.slug, fd).catch(err => {
-        alert(err.message)
-      })
+    startTransition(async () => {
+      // Server action errors are redacted in production, so the action
+      // returns its message instead of throwing it.
+      const res = await submitRsvp(event.id, event.slug, fd)
+      setMessage(res.ok ? { ok: true, text: 'Your RSVP is saved.' } : { ok: false, text: res.error })
     })
   }
 
@@ -61,38 +63,28 @@ export function RsvpForm({
 
       <div className="space-y-2">
         <label className="text-sm font-medium" htmlFor="status">Your Response</label>
-        <Select name="status" value={status} onValueChange={(val: any) => setStatus(val)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {(!isFull || rsvp?.status === 'going') && (
-              <SelectItem value="going">Going</SelectItem>
-            )}
-            <SelectItem value="maybe">Maybe / Waitlist</SelectItem>
-            <SelectItem value="declined">Can't Make It</SelectItem>
-          </SelectContent>
-        </Select>
+        <NativeSelect id="status" name="status" value={status} onChange={e => setStatus(e.target.value as 'going' | 'maybe' | 'declined')}>
+          {(!isFull || rsvp?.status === 'going') && (
+            <option value="going">Going</option>
+          )}
+          <option value="maybe">Maybe / Waitlist</option>
+          <option value="declined">Can&apos;t make it</option>
+        </NativeSelect>
       </div>
 
       {status === 'going' && (
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="guests_count">Additional Guests</label>
-          <Select name="guests_count" defaultValue={rsvp?.guests_count?.toString() || '0'}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[0, 1, 2, 3, 4, 5].map(n => {
-                if (spotsLeft !== null && n > spotsLeft && rsvp?.status !== 'going') return null
-                return (
-                  <SelectItem key={n} value={n.toString()}>
-                    {n === 0 ? 'None (Just me)' : `${n} guest${n > 1 ? 's' : ''}`}
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
+          <NativeSelect id="guests_count" name="guests_count" defaultValue={rsvp?.guests_count?.toString() || '0'}>
+            {[0, 1, 2, 3, 4, 5].map(n => {
+              if (spotsLeft !== null && n > spotsLeft && rsvp?.status !== 'going') return null
+              return (
+                <option key={n} value={n.toString()}>
+                  {n === 0 ? 'None (just me)' : `${n} guest${n > 1 ? 's' : ''}`}
+                </option>
+              )
+            })}
+          </NativeSelect>
           {spotsLeft !== null && spotsLeft < 5 && (
             <p className="text-xs text-slate">Only {spotsLeft} spot{spotsLeft === 1 ? '' : 's'} left.</p>
           )}
@@ -107,6 +99,11 @@ export function RsvpForm({
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? 'Saving...' : (rsvp ? 'Update RSVP' : 'Submit RSVP')}
       </Button>
+      {message ? (
+        <p role={message.ok ? 'status' : 'alert'} className={message.ok ? 'text-sm text-[#3F5A46]' : 'text-sm text-clay'}>
+          {message.text}
+        </p>
+      ) : null}
     </form>
   )
 }

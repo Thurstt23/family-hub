@@ -7,7 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:types": "supabase gen types typescript --local > types/database.ts"
+    "db:types": "supabase gen types typescript --local > types/database.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check:bundle": "node scripts/check-bundle-secrets.mjs",
+    "seed:members": "node scripts/seed-members.ts",
+    "stripe:sync": "node scripts/sync-stripe-prices.ts",
+    "race:rsvp": "node scripts/rsvp-race.ts",
+    "load:directory": "k6 run load/directory.k6.js",
+    "db:dump": "supabase db dump --linked -f backups/schema.sql && supabase db dump --linked --data-only -f backups/data.sql"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -52,5 +61,8 @@
     "typescript": "^5",
     "vitest": "^5.0.4"
   },
-  "packageManager": "pnpm@12.3.4"
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=22.18"
+  }
 }

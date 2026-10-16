@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { submitOnboarding } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NativeSelect } from '@/components/ui/native-select'
 import { redirect } from 'next/navigation'
 
 export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -51,29 +51,25 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
             <h2 className="text-lg font-medium border-b pb-2">Basic Info</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Full Name</label>
-                <Input name="full_name" required defaultValue={profile?.full_name || ''} />
+                <label className="text-sm font-medium" htmlFor="full_name">Full name</label>
+                <Input id="full_name" name="full_name" required defaultValue={profile?.full_name || ''} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Family Branch</label>
-                <Select name="branch_id" required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches?.map(b => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-medium" htmlFor="branch_id">Family branch</label>
+                <NativeSelect id="branch_id" name="branch_id" required defaultValue={profile?.branch_id ?? ''}>
+                  <option value="" disabled>Select a branch</option>
+                  {branches?.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </NativeSelect>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">City</label>
-                <Input name="city" required />
+                <label className="text-sm font-medium" htmlFor="city">City</label>
+                <Input id="city" name="city" required />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Country</label>
-                <Input name="country" required />
+                <label className="text-sm font-medium" htmlFor="country">Country</label>
+                <Input id="country" name="country" required />
               </div>
             </div>
           </div>
@@ -82,12 +78,12 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
             <h2 className="text-lg font-medium border-b pb-2">Optional Info</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Birthday</label>
-                <Input name="birthday" type="date" />
+                <label className="text-sm font-medium" htmlFor="birthday">Birthday</label>
+                <Input id="birthday" name="birthday" type="date" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Short Bio</label>
-                <Input name="bio" placeholder="A few words about you" />
+                <label className="text-sm font-medium" htmlFor="bio">Short bio</label>
+                <Input id="bio" name="bio" placeholder="A few words about you" />
               </div>
             </div>
           </div>
@@ -110,7 +106,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
             </div>
           </div>
 
-          <Button type="submit" className="w-full">Submit Profile</Button>
+          <Button type="submit" className="w-full">Send my request</Button>
         </form>
       </div>
     </div>

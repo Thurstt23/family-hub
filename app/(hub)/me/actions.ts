@@ -4,6 +4,7 @@ import { requireActiveMember } from '@/lib/auth/guards'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { MAX_IMAGE_BYTES, sniffImage } from '@/lib/images/sniff'
 
 const profileSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
@@ -69,41 +70,38 @@ export async function updateProfile(formData: FormData) {
   redirect(`/directory/${currentProfile.handle}`)
 }
 
-export async function uploadAvatar(formData: FormData) {
+export async function uploadAvatar(formData: FormData): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const { supabase, user } = await requireActiveMember()
-  
-  const file = formData.get('avatar') as File
+
+  const file = formData.get('avatar')
   if (!file || !(file instanceof File)) {
-    throw new Error('No file provided')
+    return { ok: false, error: 'Choose a photo to upload.' }
   }
-  
-  if (file.size > 10 * 1024 * 1024) {
-    throw new Error('File too large (max 10MB)')
+  // Checked here, on the server, whatever the file input allowed (08, Phase 4).
+  if (file.size > MAX_IMAGE_BYTES) {
+    return { ok: false, error: 'That photo is larger than 10MB. Choose a smaller one.' }
   }
-  
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Invalid file type, must be an image')
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  const kind = sniffImage(bytes.subarray(0, 16))
+  if (!kind) {
+    return { ok: false, error: 'That file is not a JPG, PNG, WebP or GIF photo.' }
   }
-  
-  const ext = file.name.split('.').pop()
-  const fileName = `${user.id}-${Date.now()}.${ext}`
-  
-  const { data, error } = await supabase
-    .storage
-    .from('avatars')
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: false
-    })
-    
-  if (error) throw new Error(error.message)
-  
+
+  // Named under the member's id so the storage policy can scope writes.
+  const fileName = `${user.id}/${Date.now()}.${kind.ext}`
+  const { error } = await supabase.storage.from('avatars').upload(fileName, bytes, {
+    cacheControl: '3600',
+    contentType: kind.mime,
+    upsert: false,
+  })
+  if (error) return { ok: false, error: 'The photo could not be saved. Try again.' }
+
   const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName)
-  
   await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id)
-  
+
   revalidatePath('/me')
-  return { success: true, url: publicUrl }
+  revalidatePath('/directory')
+  return { ok: true, url: publicUrl }
 }
 
 export async function setAnnouncementEmails(_prev: { ok: boolean; message: string } | null, formData: FormData) {
