@@ -2,6 +2,8 @@
 
 The family register: a public site, a members-only hub (directory, events, posts, photos), paid memberships through Stripe, and an admin console.
 
+**Other guides:** [`docs/CONTENT_GUIDE.md`](docs/CONTENT_GUIDE.md) (changing the family's wording, names and photos, written for whoever does that with Claude) and [`docs/HUONG_DAN_SETUP.md`](docs/HUONG_DAN_SETUP.md) (setup and deployment, in Vietnamese, for the maintainer).
+
 This README has two parts. **Part 1** is for the family administrators who run the site day to day. **Part 2** is for whoever maintains the code and the accounts behind it.
 
 ---
@@ -103,6 +105,7 @@ insert into user_roles (user_id, role) select id, 'owner' from profiles where em
 | `pnpm dev` / `pnpm build` / `pnpm start` | Next.js |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm test` | Vitest unit tests (`lib/**/*.test.ts`) |
+| `pnpm test:db` | Applies every migration to an in-process Postgres and checks the RLS rules as each role (no Docker) |
 | `pnpm test:e2e` | Playwright: the six critical paths and the security matrix from `10` |
 | `pnpm check:bundle` | Fails if any server secret appears in `.next/static` (run after build) |
 | `pnpm race:rsvp` | 100 simultaneous RSVPs for 25 places; fails on overshoot |
