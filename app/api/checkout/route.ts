@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       client_reference_id: user.id,
       metadata: { user_id: user.id, tier_id: tier.id },
       success_url: `${origin}/me/membership?checkout=success`,
-      cancel_url: `${origin}/join?checkout=canceled`,
+      cancel_url: `${origin}/me/membership?checkout=canceled`,
       allow_promotion_codes: true,
     }
 

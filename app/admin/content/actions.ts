@@ -143,3 +143,37 @@ export async function setPostPublished(_prev: ActionResult | null, fd: FormData)
     },
   })
 }
+
+// ---------------------------------------------------------------- albums
+
+const albumSchema = z.object({
+  title: z.string().trim().min(2, 'Give the album a title.'),
+  event_id: z.string().uuid().optional().or(z.literal('')),
+  visibility,
+  min_tier_level: z.coerce.number().int().min(0).default(0),
+})
+
+export async function createAlbum(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const parsed = albumSchema.safeParse(Object.fromEntries(fd))
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Check the form.' }
+  const v = parsed.data
+  const row = {
+    title: v.title,
+    event_id: v.event_id || null,
+    visibility: v.visibility,
+    min_tier_level: v.visibility === 'tier_gated' ? v.min_tier_level : 0,
+  }
+  return adminAction({
+    action: 'album.create',
+    entity: 'albums',
+    entityId: v.title,
+    meta: row,
+    run: async ({ supabase, user }) => {
+      const { error } = await supabase.from('albums').insert({ ...row, created_by: user.id })
+      if (error) return { ok: false as const, error: friendlyDbError(error.message) }
+      revalidatePath('/admin/content')
+      revalidatePath('/hub/albums')
+      return { ok: true as const, message: `Album "${v.title}" created. Members can now add photos to it.` }
+    },
+  })
+}

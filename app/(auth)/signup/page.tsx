@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { GoogleButton } from '@/components/auth/google-button'
+import { site } from '@/content/site'
 
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ error?: string, success?: string }> }) {
   const { error, success } = await searchParams
@@ -11,7 +12,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
     <main id="main" className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-serif text-ink">Join Martin Sawyer Reunion</h1>
+          <h1 className="text-3xl font-bold font-serif text-ink">Join {site.name}</h1>
           <p className="text-slate">Create an account to connect with the family.</p>
         </div>
 

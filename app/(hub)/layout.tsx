@@ -2,6 +2,7 @@ import { requireActiveMember } from '@/lib/auth/guards'
 import { signOut } from '@/lib/auth/actions'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { site } from '@/content/site'
 
 const NAV = [
   { href: '/hub', label: 'Feed' },
@@ -24,7 +25,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6 min-w-0">
             <Link href="/hub" className="font-serif text-xl font-medium whitespace-nowrap">
-              Martin Sawyer Reunion
+              {site.name}
             </Link>
             <nav aria-label="Primary" className="hidden md:flex gap-4 text-sm font-medium">
               {NAV.map(n => (

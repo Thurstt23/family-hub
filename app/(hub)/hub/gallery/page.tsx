@@ -13,8 +13,9 @@ export default async function GalleryPage() {
   const { data: photos } = await supabase
     .from('photos')
     .select(`
-      id, storage_path, post_id, created_at,
-      posts(slug, title)
+      id, storage_path, caption, post_id, created_at,
+      posts(slug, title),
+      albums(title)
     `)
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
@@ -35,7 +36,8 @@ export default async function GalleryPage() {
             <div className="relative aspect-square bg-muted rounded-md overflow-hidden group">
               <img 
                 src={`${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${photo.storage_path}`} 
-                alt="" 
+                alt={photo.caption || ((photo.albums as unknown as { title: string } | null)?.title ? `Photograph from ${(photo.albums as unknown as { title: string }).title}` : 'Family photograph')}
+                loading="lazy" 
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />
               {photo.posts && (
@@ -58,7 +60,7 @@ export default async function GalleryPage() {
         })}
         {(!photos || photos.length === 0) && (
           <div className="col-span-full text-center py-12 text-slate">
-            No photos have been uploaded yet.
+            No photographs yet. Open an album to add the first ones.
           </div>
         )}
       </div>

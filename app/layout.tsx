@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Karla, Newsreader } from "next/font/google";
 import { env } from "@/lib/env";
 import "./globals.css";
+import { site } from '@/content/site'
 
 const karla = Karla({
   subsets: ["latin"],
@@ -17,16 +18,16 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Martin Sawyer Reunion',
-    default: 'Martin Sawyer Reunion',
+    template: `%s | ${site.name}`,
+    default: site.name,
   },
-  description: 'Six branches. Four generations. One register.',
+  description: site.tagline,
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   openGraph: {
-    title: 'Martin Sawyer Reunion',
-    description: 'Six branches. Four generations. One register.',
+    title: site.name,
+    description: site.tagline,
     url: '/',
-    siteName: 'Martin Sawyer Reunion',
+    siteName: site.name,
     // Image comes from the app/opengraph-image.tsx convention route.
     locale: 'en_US',
     type: 'website',
@@ -43,10 +44,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${karla.variable} ${newsreader.variable} antialiased`}
-      >
+    // The font variables must sit on <html>: globals.css applies font-sans there,
+    // and a variable defined only on <body> leaves <html> on the browser default.
+    <html lang="en" className={`${karla.variable} ${newsreader.variable}`}>
+      <body className="antialiased">
         {children}
       </body>
     </html>

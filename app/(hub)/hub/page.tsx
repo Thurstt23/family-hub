@@ -13,13 +13,18 @@ export default async function HubPage() {
   const { data: posts, error } = await supabase
     .from('posts')
     .select(`
-      id, created_at, body,
+      id, slug, title, kind, created_at, published_at, body,
       author:profiles!posts_author_id_fkey(id, full_name, avatar_url),
       photos(id, storage_path, caption),
-      comments(id, body, created_at, author:profiles(full_name, avatar_url)),
+      comments(id, body, created_at, status, author:profiles(full_name, avatar_url)),
       post_likes(user_id)
     `)
-    .order('created_at', { ascending: false })
+    // Staff can read drafts and scheduled posts through RLS; the feed shows
+    // only what is published, newest first. Removed comments stay out too.
+    .not('published_at', 'is', null)
+    .lte('published_at', new Date().toISOString())
+    .eq('comments.status', 'approved')
+    .order('published_at', { ascending: false })
     .limit(50)
 
   if (error) {
@@ -29,7 +34,9 @@ export default async function HubPage() {
   // Transform data for the client
   const feedPosts = (posts || []).map(p => ({
     id: p.id,
-    created_at: p.created_at,
+    slug: p.slug,
+    title: p.kind === 'story' ? null : p.title,
+    created_at: p.published_at ?? p.created_at,
     body: p.body,
     author: Array.isArray(p.author) ? p.author[0] : p.author,
     photos: p.photos || [],

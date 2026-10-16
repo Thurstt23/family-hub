@@ -7,6 +7,7 @@ import { FieldLabel, NativeSelect, Textarea } from '@/components/ui/native-selec
 import { ActionMessage } from '@/components/admin/action-form'
 import { localInputsToIso, toLocalInput } from '@/components/admin/local-datetime'
 import type { ActionResult } from '@/lib/admin/action'
+import { siteTimezoneLabel } from '@/lib/dates'
 import { savePost } from '../../actions'
 
 type PostRow = {
@@ -115,7 +116,7 @@ export function PostForm({ post, id, tiers }: { post: PostRow | null; id: string
       <div className="max-w-xs">
         <FieldLabel htmlFor="published_at">Publish at</FieldLabel>
         <Input id="published_at" name="published_at" type="datetime-local" value={publishedAt} onChange={e => setPublishedAt(e.target.value)} />
-        <p className="mt-1 text-xs text-slate">Leave empty to keep it as a draft. A future time schedules it.</p>
+        <p className="mt-1 text-xs text-slate">Leave empty to keep it as a draft. A future time schedules it. Times are {siteTimezoneLabel()}.</p>
       </div>
 
       <div className="flex items-center justify-end gap-4 border-t border-rule pt-4">

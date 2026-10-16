@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
+import { site } from '@/content/site'
 
-export const alt = 'The Martin Sawyer Family'
+export const alt = site.familyName
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -20,11 +21,11 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ fontSize: 30, color: '#A97C2F', marginBottom: 24 }}>
-          Martin Sawyer Reunion
+          {site.name}
         </div>
-        <div style={{ fontSize: 72, lineHeight: 1.1 }}>The Martin Sawyer Family</div>
+        <div style={{ fontSize: 72, lineHeight: 1.1 }}>{site.familyName}</div>
         <div style={{ fontSize: 32, color: '#EFF1EE', opacity: 0.85, marginTop: 32 }}>
-          Six branches. Four generations. One register.
+          {site.tagline}
         </div>
       </div>
     ),

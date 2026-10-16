@@ -12,8 +12,12 @@ export default async function AlbumsPage() {
 
   const { data: albums } = await supabase
     .from('albums')
-    .select('id, title, cover_url, created_at')
+    .select('id, title, cover_url, created_at, photos(storage_path)')
+    .eq('photos.status', 'approved')
     .order('created_at', { ascending: false })
+    // One approved photo per album stands in for a cover that was never set.
+    .order('created_at', { referencedTable: 'photos', ascending: true })
+    .limit(1, { referencedTable: 'photos' })
 
   return (
     <div className="max-w-5xl mx-auto py-8 space-y-6">
@@ -28,15 +32,15 @@ export default async function AlbumsPage() {
         {albums?.map(album => (
           <Link key={album.id} href={`/hub/albums/${album.id}`} className="group block space-y-3">
             <div className="relative aspect-video bg-muted rounded-md overflow-hidden border border-rule">
-              {album.cover_url ? (
+              {album.cover_url || album.photos?.[0]?.storage_path ? (
                 <img 
-                  src={`${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${album.cover_url}`} 
+                  src={`${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${album.cover_url || album.photos?.[0]?.storage_path}`} 
                   alt="" 
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
               ) : (
                 <div className="flex items-center justify-center w-full h-full bg-paper">
-                  <span className="text-slate">No Cover</span>
+                  <span className="text-slate">No photos yet</span>
                 </div>
               )}
             </div>
@@ -45,7 +49,7 @@ export default async function AlbumsPage() {
         ))}
         {(!albums || albums.length === 0) && (
           <div className="col-span-full text-center py-12 text-slate">
-            No albums created yet.
+            No albums yet. A steward creates one for each gathering from the admin console.
           </div>
         )}
       </div>

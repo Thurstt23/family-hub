@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next'
+import { site } from '@/content/site'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Martin Sawyer Reunion',
-    short_name: 'Martin Sawyer',
-    description: 'Six branches. Four generations. One register.',
+    name: site.name,
+    short_name: site.shortName,
+    description: site.tagline,
     start_url: '/hub',
     scope: '/',
     display: 'standalone',

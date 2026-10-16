@@ -2,6 +2,7 @@ import { requireActiveMember } from '@/lib/auth/guards'
 import { notFound } from 'next/navigation'
 import { IndexRow } from '@/components/member/index-row'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { plural } from '@/lib/utils'
 
 export default async function BranchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { supabase } = await requireActiveMember()
@@ -27,7 +28,7 @@ export default async function BranchDetailPage({ params }: { params: Promise<{ s
       <div>
         <h1 className="text-3xl font-serif mb-2">{branch.name} Branch</h1>
         {branch.description && <p className="text-slate">{branch.description}</p>}
-        <p className="text-sm text-slate tabular-nums mt-2">{members?.length || 0} active members</p>
+        <p className="text-sm text-slate tabular-nums mt-2">{plural(members?.length || 0, 'active member')}</p>
       </div>
 
       <div className="border-t border-rule">

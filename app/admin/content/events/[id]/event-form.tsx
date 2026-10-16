@@ -7,6 +7,7 @@ import { FieldLabel, NativeSelect, Textarea } from '@/components/ui/native-selec
 import { ActionMessage } from '@/components/admin/action-form'
 import { localInputsToIso, toLocalInput } from '@/components/admin/local-datetime'
 import type { ActionResult } from '@/lib/admin/action'
+import { siteTimezoneLabel } from '@/lib/dates'
 import { saveEvent } from '../../actions'
 
 type EventRow = {
@@ -83,6 +84,7 @@ export function EventForm({ event, id, tiers }: { event: EventRow | null; id: st
           <FieldLabel htmlFor="rsvp_deadline">RSVP deadline (optional)</FieldLabel>
           <Input id="rsvp_deadline" name="rsvp_deadline" type="datetime-local" value={dates.rsvp_deadline} onChange={e => setDates(d => ({ ...d, rsvp_deadline: e.target.value }))} />
         </div>
+        <p className="md:col-span-3 -mt-2 text-xs text-slate">All times are {siteTimezoneLabel()}, whatever timezone your computer is in.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

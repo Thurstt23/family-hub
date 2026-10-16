@@ -1,6 +1,7 @@
 import 'server-only'
 import { sendEmail } from '@/lib/email/send'
 import { createElement } from 'react'
+import { site } from '@/content/site'
 
 // Structured error line for Vercel logs (filterable by `"level":"error"`),
 // plus an email to ALERT_EMAIL when it is set. A silent webhook failure means
@@ -11,7 +12,7 @@ export async function alertOps(event: string, details: Record<string, unknown>) 
   if (!to) return
   await sendEmail({
     to,
-    subject: `[Martin Sawyer Reunion] ${event}`,
+    subject: `[${site.name}] ${event}`,
     react: createElement('pre', { style: { fontFamily: 'monospace', fontSize: '13px' } }, JSON.stringify(details, null, 2)),
   })
 }

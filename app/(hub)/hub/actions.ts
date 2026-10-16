@@ -78,7 +78,9 @@ export async function reportComment(commentId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not logged in')
 
-  const { error } = await supabase.from('comments').update({ status: 'pending' }).eq('id', commentId)
-  if (error) throw new Error(error.message)
+  // Reporting changes another member's comment, which RLS does not allow
+  // directly; the RPC can only move an approved comment into moderation.
+  const { error } = await supabase.rpc('report_comment', { p_comment: commentId })
+  if (error) throw new Error('The comment could not be reported. Try again.')
   revalidatePath('/hub')
 }

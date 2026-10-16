@@ -1,5 +1,6 @@
 import { Body, Container, Head, Hr, Html, Preview, Section, Text } from '@react-email/components'
 import type { ReactNode } from 'react'
+import { site } from '@/content/site'
 
 // Tokens from 07 Design System. Email clients ignore CSS variables, so the
 // hex values are repeated here.
@@ -9,7 +10,7 @@ export const color = {
   card: '#FFFFFF',
   slate: '#5A6672',
   rule: '#D6DAD5',
-  brass: '#A97C2F',
+  brass: '#8A6424',
   mulberry: '#6E2F45',
   clay: '#9C4A32',
 }
@@ -59,13 +60,13 @@ export function EmailLayout({
       <Body style={{ backgroundColor: color.paper, margin: 0, padding: '32px 0' }}>
         <Container style={{ backgroundColor: color.card, maxWidth: '560px', padding: '40px 32px', border: `1px solid ${color.rule}` }}>
           <Text style={{ ...text, fontFamily: heading.fontFamily, fontSize: '18px', margin: '0 0 32px' }}>
-            Martin Sawyer Reunion
+            {site.name}
           </Text>
           {children}
           <Hr style={{ borderColor: color.rule, margin: '32px 0 16px' }} />
           <Section>
             <Text style={{ ...text, fontSize: '13px', color: color.slate, margin: 0 }}>
-              {footer ?? 'You are receiving this because you have an account on the Martin Sawyer family register.'}
+              {footer ?? `You are receiving this because you have an account on the ${site.familyNameInSentence} family register.`}
             </Text>
           </Section>
         </Container>

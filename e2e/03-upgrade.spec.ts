@@ -15,7 +15,7 @@ test.afterAll(async () => {
 test('checkout in test mode, webhook fires, /me/membership shows the new tier', async ({ page }) => {
   test.setTimeout(120_000)
   await page.goto('/me/membership')
-  await page.locator('form', { has: page.locator('input[name="tierSlug"][value="supporter"]') }).getByRole('button', { name: 'Upgrade' }).click()
+  await page.locator('form', { has: page.locator('input[name="tierSlug"][value="supporter"]') }).getByRole('button', { name: 'Choose Supporter' }).click()
 
   await page.waitForURL(/checkout\.stripe\.com/)
   await page.locator('#cardNumber').fill('4242 4242 4242 4242')

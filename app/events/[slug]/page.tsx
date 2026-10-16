@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
-import { format } from 'date-fns'
+import { formatTime, formatTimeWithZone, formatWeekdayDate } from '@/lib/dates'
 import { RsvpForm } from './rsvp-form'
 import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
@@ -35,14 +35,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     rsvp = rsvpData
   }
 
-  // fetch capacity usage
-  const { data: attendees } = await supabase
-    .from('event_rsvps')
-    .select('guests_count')
-    .eq('event_id', event.id)
-    .eq('status', 'going')
-
-  const totalGoing = (attendees || []).reduce((acc, curr) => acc + curr.guests_count + 1, 0)
+  // Places taken across every member. RLS only lets a member read their own
+  // RSVP, so the total comes from a security definer function.
+  const { data: seats } = await supabase.rpc('event_seats_taken', { p_event: event.id })
+  const totalGoing = typeof seats === 'number' ? seats : 0
   const isFull = event.capacity ? totalGoing >= event.capacity : false
   const spotsLeft = event.capacity ? Math.max(0, event.capacity - totalGoing) : null
 
@@ -54,14 +50,13 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
       <main id="main" className="flex-1 py-16 px-6 lg:px-12 max-w-4xl mx-auto w-full">
         <div className="mb-12 border-b border-rule pb-6">
-          <p className="text-brass font-medium uppercase tracking-widest text-sm mb-4">
-            {format(new Date(event.starts_at), 'EEEE, d MMMM yyyy')}
+          <p className="text-slate font-medium text-base mb-4 tabular-nums">
+            {formatWeekdayDate(event.starts_at)}
           </p>
           <h1 className="font-serif text-4xl md:text-5xl font-medium mb-4">{event.title}</h1>
           <div className="flex flex-col sm:flex-row gap-4 text-slate text-sm">
             <span>
-              <strong>Time:</strong> {format(new Date(event.starts_at), 'h:mm a')} 
-              {event.ends_at && ` - ${format(new Date(event.ends_at), 'h:mm a')}`}
+              <strong>Time:</strong> {event.ends_at ? `${formatTime(event.starts_at)} – ${formatTimeWithZone(event.ends_at)}` : formatTimeWithZone(event.starts_at)}
             </span>
             <span>•</span>
             <span>

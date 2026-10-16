@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans:  var(--font-karla), ui-sans-serif, system-ui, sans-serif;
@@ -11,7 +12,10 @@
   --color-card:     #FFFFFF;
   --color-slate:    #5A6672;
   --color-rule:     #D6DAD5;
-  --color-brass:    #A97C2F;
+  /* 07 specifies #A97C2F, which is only 3.3:1 on paper and 3.75:1 under white
+     text. Deepened to meet WCAG AA as 07 section 7 intends: 4.7:1 on paper,
+     5.4:1 with white text. */
+  --color-brass:    #8A6424;
   --color-mulberry: #6E2F45;
   --color-sage:     #6F8A76;
   --color-clay:     #9C4A32;
@@ -114,4 +118,30 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Long-form text (about page, posts, event descriptions) in the register's
+   tokens rather than the typography plugin's greys. */
+.prose {
+  --tw-prose-body: var(--color-ink);
+  --tw-prose-headings: var(--color-ink);
+  --tw-prose-links: var(--color-ink);
+  --tw-prose-bold: var(--color-ink);
+  --tw-prose-bullets: var(--color-slate);
+  --tw-prose-counters: var(--color-slate);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-rule);
+  --tw-prose-hr: var(--color-rule);
+  --tw-prose-captions: var(--color-slate);
+  --tw-prose-code: var(--color-ink);
+  --tw-prose-th-borders: var(--color-rule);
+  --tw-prose-td-borders: var(--color-rule);
+}
+.prose a {
+  text-decoration-color: var(--color-brass);
+  text-underline-offset: 3px;
+}
+.prose :where(h1, h2, h3, h4) {
+  font-family: var(--font-serif);
+  font-weight: 500;
 }

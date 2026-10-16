@@ -1,7 +1,7 @@
 import { requireActiveMember } from '@/lib/auth/guards'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
-import { format } from 'date-fns'
+import { formatLongDate } from '@/lib/dates'
 import { RefreshUntil } from './refresh-until'
 
 export const dynamic = 'force-dynamic'
@@ -57,6 +57,11 @@ export default async function MembershipPage({
           </div>
         )
       )}
+      {sp.checkout === 'canceled' && (
+        <div role="status" className="p-4 rounded-md border border-rule bg-card">
+          Checkout was cancelled and nothing was charged. You can choose a membership again below whenever you like.
+        </div>
+      )}
       {(sp.checkout === 'error' || sp.portal === 'error') && (
         <div role="alert" className="p-4 rounded-md border border-clay/40 bg-clay/10 text-clay">
           {sp.reason ?? 'Something went wrong.'} Try again, or contact a family administrator if it keeps happening.
@@ -64,12 +69,12 @@ export default async function MembershipPage({
       )}
 
       <div className="bg-card border border-rule p-6 rounded-md shadow-sm">
-        <h2 className="text-xl font-medium mb-4">Current Plan: {currentTierName}</h2>
+        <h2 className="text-xl font-medium mb-4">Your membership: {currentTierName}</h2>
         <div className="space-y-4 text-slate">
           {membership?.status === 'active' && !isFree && membership.current_period_end && (
             <p>
               Your subscription is active and will {membership.cancel_at_period_end ? 'end' : 'renew'} on{' '}
-              <span className="font-medium text-ink">{format(new Date(membership.current_period_end), 'MMM d, yyyy')}</span>.
+              <span className="font-medium text-ink">{formatLongDate(membership.current_period_end)}</span>.
             </p>
           )}
           {membership?.status === 'active' && !isFree && !membership.current_period_end && (
@@ -82,7 +87,7 @@ export default async function MembershipPage({
           {!isFree && (
             <form action="/api/portal" method="POST">
               <button type="submit" className={buttonVariants({ variant: 'outline' })}>
-                Manage Billing & Payment Methods
+                Manage billing and card
               </button>
             </form>
           )}
@@ -90,7 +95,7 @@ export default async function MembershipPage({
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-serif">Available Tiers</h2>
+        <h2 className="text-2xl font-serif">Memberships</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {tiers?.map(tier => {
             const isCurrent = tier.slug === currentTierSlug
@@ -101,17 +106,23 @@ export default async function MembershipPage({
                   {tier.price_cents === 0 ? 'Free' : `$${tier.price_cents / 100}`}
                   {tier.billing_interval === 'year' ? '/yr' : ''}
                 </p>
-                <p className="text-sm text-slate flex-1 mb-6">{tier.description}</p>
+                <p className="text-sm text-slate mb-3">{tier.description}</p>
+                {Array.isArray(tier.benefits) && tier.benefits.length ? (
+                  <ul className="list-disc pl-5 text-sm text-slate space-y-1 mb-6">
+                    {(tier.benefits as string[]).map(b => <li key={b}>{b}</li>)}
+                  </ul>
+                ) : null}
+                <div className="flex-1" />
                 
                 {isCurrent ? (
                   <button disabled className={buttonVariants({ variant: 'outline', className: 'w-full opacity-50 cursor-not-allowed' })}>
-                    Current Plan
+                    Your current tier
                   </button>
                 ) : tier.level > currentTierLevel ? (
                   <form action="/api/checkout" method="POST">
                     <input type="hidden" name="tierSlug" value={tier.slug} />
                     <button type="submit" className={buttonVariants({ className: 'w-full bg-brass hover:bg-brass/90 text-card' })}>
-                      Upgrade
+                      Choose {tier.name}
                     </button>
                   </form>
                 ) : (

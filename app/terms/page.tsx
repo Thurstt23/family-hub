@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
+import { site } from '@/content/site'
 
 export const metadata: Metadata = {
   title: 'Terms',
-  description: 'The ground rules for using the Martin Sawyer family register and paying for a membership.',
+  description: 'The ground rules for using the family register and paying for a membership.',
 }
 
 export default function TermsPage() {
@@ -17,7 +18,7 @@ export default function TermsPage() {
 
         <h2>Membership of the register</h2>
         <ul className="list-disc pl-6 space-y-2">
-          <li>Accounts are for members of the Martin Sawyer family and their partners. Stewards may ask for details before approving a request.</li>
+          <li>Accounts are for members of the {site.familyNameInSentence} family and their partners. Stewards may ask for details before approving a request.</li>
           <li>Keep your sign in to yourself. One account per person.</li>
           <li>Administrators may suspend or archive an account that breaks these terms.</li>
         </ul>
@@ -33,7 +34,7 @@ export default function TermsPage() {
         <ul className="list-disc pl-6 space-y-2">
           <li>Supporter and Patron memberships renew every year until cancelled. Lifetime is a single payment.</li>
           <li>You can cancel at any time from the billing portal on your membership page. Benefits continue until the end of the period you paid for.</li>
-          <li>Contributions support the running costs of the site and the reunion. Refunds are at the discretion of the family administrators; ask by replying to any receipt.</li>
+          <li>Contributions support the running costs of the site and the reunion. Refunds are at the discretion of the family administrators; ask at {site.contactEmail} or reply to any receipt.</li>
         </ul>
 
         <h2>Changes</h2>

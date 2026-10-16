@@ -1,5 +1,6 @@
 import { Button, Heading, Link, Section, Text } from '@react-email/components'
 import { EmailLayout, button, color, heading, text } from './layout'
+import { site } from '@/content/site'
 
 // One component per row of the system email table in 04, section 7. The two
 // rows sent by Supabase Auth (confirm email, password reset) are configured
@@ -11,7 +12,7 @@ export function PendingReceivedEmail({ name }: { name: string }) {
       <Heading style={heading}>We received your request</Heading>
       <Text style={text}>Dear {name},</Text>
       <Text style={text}>
-        Thank you for joining the Martin Sawyer family register. A steward from your branch will
+        Thank you for joining the {site.familyNameInSentence} family register. A steward from your branch will
         review your request, usually within a few days. We will write again as soon as you are approved.
       </Text>
       <Text style={text}>Nothing else is needed from you for now.</Text>

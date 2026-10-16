@@ -16,7 +16,8 @@
     "stripe:sync": "node scripts/sync-stripe-prices.ts",
     "race:rsvp": "node scripts/rsvp-race.ts",
     "load:directory": "k6 run load/directory.k6.js",
-    "db:dump": "supabase db dump --linked -f backups/schema.sql && supabase db dump --linked --data-only -f backups/data.sql"
+    "db:dump": "supabase db dump --linked -f backups/schema.sql && supabase db dump --linked --data-only -f backups/data.sql",
+    "test:db": "node supabase/tests/rls.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -44,9 +45,12 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@faker-js/faker": "^10.6.0",
+    "@next/eslint-plugin-next": "15.5.25",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.20",
     "@types/marked": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -55,10 +59,12 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "^15.2.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "prettier": "^3.9.6",
     "supabase": "^2.116.0",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.4"
   },
   "packageManager": "pnpm@12.3.4",

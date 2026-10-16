@@ -5,6 +5,7 @@ import { DirectoryFilters } from '@/components/member/directory-filters'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { plural } from '@/lib/utils'
 
 const PAGE_SIZE = 24
 
@@ -50,7 +51,7 @@ export default async function DirectoryPage({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-3xl font-serif">Directory</h1>
         {count !== null && (
-          <p className="text-sm text-slate tabular-nums">{count.toLocaleString()} members</p>
+          <p className="text-sm text-slate tabular-nums">{plural(count, 'member')}</p>
         )}
       </div>
 

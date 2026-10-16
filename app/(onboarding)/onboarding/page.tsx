@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { redirect } from 'next/navigation'
+import { site } from '@/content/site'
 
 export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams
@@ -36,7 +37,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
     <div className="flex min-h-screen flex-col items-center justify-center p-4 py-12">
       <div className="w-full max-w-lg space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold font-serif text-ink">Welcome to Martin Sawyer Reunion</h1>
+          <h1 className="text-3xl font-bold font-serif text-ink">Welcome to {site.name}</h1>
           <p className="text-slate">Please complete your profile to request access.</p>
         </div>
 

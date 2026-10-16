@@ -58,3 +58,22 @@ describe('member filters', () => {
     expect(filtersToQueryString(f, { page: '1' })).toBe('search=sawyer&role=admin&page=1')
   })
 })
+
+describe('dates in the family timezone (America/New_York)', async () => {
+  const { zonedInputToIso, isoToZonedInput, formatLongDate, formatTimeWithZone } = await import('./dates')
+  it('reads an admin-entered time as New York wall-clock time', () => {
+    expect(zonedInputToIso('2026-06-14T18:00')).toBe('2026-06-14T22:00:00.000Z') // EDT, UTC-4
+    expect(zonedInputToIso('2026-01-10T09:30')).toBe('2026-01-10T14:30:00.000Z') // EST, UTC-5
+  })
+  it('round-trips through the input format', () => {
+    for (const v of ['2026-06-14T18:00', '2026-11-01T01:30', '2026-03-08T12:00']) {
+      expect(isoToZonedInput(zonedInputToIso(v))).toBe(v)
+    }
+  })
+  it('shows event times in the family timezone, not the server one', () => {
+    expect(formatTimeWithZone('2026-06-14T22:00:00Z')).toBe('6:00 PM EDT')
+  })
+  it('never shifts a birthday', () => {
+    expect(formatLongDate('1990-05-14')).toBe('14 May 1990')
+  })
+})

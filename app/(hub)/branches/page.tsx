@@ -1,5 +1,6 @@
 import { requireActiveMember } from '@/lib/auth/guards'
 import { IndexRow } from '@/components/member/index-row'
+import { plural } from '@/lib/utils'
 
 export default async function BranchesPage() {
   const { supabase } = await requireActiveMember()
@@ -22,7 +23,7 @@ export default async function BranchesPage() {
                 {b.description && <p className="text-sm text-slate">{b.description}</p>}
               </div>
               <div className="text-sm text-slate tabular-nums">
-                {b.profiles[0]?.count || 0} members
+                {plural(b.profiles[0]?.count || 0, 'member')}
               </div>
             </div>
           </IndexRow>

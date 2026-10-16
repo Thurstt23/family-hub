@@ -13,13 +13,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   const { data: p, error } = await supabase
     .from('posts')
     .select(`
-      id, created_at, body,
+      id, slug, title, kind, created_at, published_at, body,
       author:profiles!posts_author_id_fkey(id, full_name, avatar_url),
-      photos(id, storage_path),
-      comments(id, body, created_at, author:profiles(full_name, avatar_url)),
+      photos(id, storage_path, caption),
+      comments(id, body, created_at, status, author:profiles(full_name, avatar_url)),
       post_likes(user_id)
     `)
     .eq('slug', slug)
+    .eq('comments.status', 'approved')
     .single()
 
   if (error || !p) notFound()
@@ -27,7 +28,9 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   // Format as single post for the Feed component (reusing it)
   const feedPost = {
     id: p.id,
-    created_at: p.created_at,
+    slug: p.slug,
+    title: p.kind === 'story' ? null : p.title,
+    created_at: p.published_at ?? p.created_at,
     body: p.body,
     author: Array.isArray(p.author) ? p.author[0] : p.author,
     photos: p.photos || [],

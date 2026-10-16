@@ -22,7 +22,7 @@ export default async function AlbumDetailPage({ params }: { params: Promise<{ id
 
   const { data: photos } = await supabase
     .from('photos')
-    .select('id, storage_path, created_at')
+    .select('id, storage_path, caption, created_at')
     .eq('album_id', id)
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
@@ -47,14 +47,15 @@ export default async function AlbumDetailPage({ params }: { params: Promise<{ id
           <div key={photo.id} className="relative aspect-square bg-muted rounded-md overflow-hidden group">
             <img 
               src={`${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${photo.storage_path}`} 
-              alt="" 
+              alt={photo.caption || `Photograph from ${album.title}`}
+              loading="lazy" 
               className="w-full h-full object-cover transition-transform group-hover:scale-105"
             />
           </div>
         ))}
         {(!photos || photos.length === 0) && (
           <div className="col-span-full text-center py-12 text-slate">
-            No photos in this album yet.
+            No photos in this album yet. Add yours with Upload photos; a steward approves each one before it appears.
           </div>
         )}
       </div>

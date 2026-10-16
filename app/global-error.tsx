@@ -13,7 +13,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           </p>
           <button
             onClick={reset}
-            style={{ background: '#A97C2F', color: '#fff', border: 0, borderRadius: 4, padding: '10px 18px', fontSize: 16, cursor: 'pointer' }}
+            style={{ background: '#8A6424', color: '#fff', border: 0, borderRadius: 4, padding: '10px 18px', fontSize: 16, cursor: 'pointer' }}
           >
             Try again
           </button>

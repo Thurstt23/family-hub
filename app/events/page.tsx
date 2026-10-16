@@ -1,10 +1,11 @@
 import { Metadata } from 'next'
-import { format } from 'date-fns'
+import { formatShortDate, formatYear } from '@/lib/dates'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { SiteHeader } from '@/components/marketing/site-header'
 import { SiteFooter } from '@/components/marketing/site-footer'
+import { site } from '@/content/site'
 
 // We cannot use static revalidation if we rely on user cookies for RLS
 // Exporting dynamic instead.
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Events',
-  description: 'Upcoming gatherings for the Martin Sawyer family.',
+  description: `Upcoming gatherings for the ${site.familyNameInSentence} family.`,
 }
 
 export default async function EventsPage() {
@@ -66,10 +67,10 @@ export default async function EventsPage() {
                 <div className="flex flex-col md:flex-row gap-6 md:gap-12">
                   <div className="md:w-1/3 flex flex-col text-slate">
                     <span className="font-serif text-2xl text-ink">
-                      {format(new Date(event.starts_at), 'd MMM')}
+                      {formatShortDate(event.starts_at)}
                     </span>
-                    <span className="font-medium text-sm tabular-nums tracking-wider uppercase mt-1">
-                      {format(new Date(event.starts_at), 'yyyy')}
+                    <span className="font-medium text-sm tabular-nums mt-1">
+                      {formatYear(event.starts_at)}
                     </span>
                     <span className="mt-4 text-sm font-medium">{event.location_name}</span>
                   </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { site } from '@/content/site'
 
 const NAV_ITEMS = [
   { href: '/about', label: 'About' },
@@ -16,7 +17,7 @@ export function SiteHeader({ current }: { current?: NavHref }) {
         Skip to content
       </a>
       <Link href="/" className="font-serif text-2xl font-semibold tracking-tight">
-        Martin Sawyer Reunion
+        {site.name}
       </Link>
       {/* Visible at every width: four links fit on one line from 360px. */}
       <nav aria-label="Primary" className="flex gap-5 sm:gap-8 text-[15px] font-medium">

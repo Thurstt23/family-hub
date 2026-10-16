@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { formatDateTime, formatLongDate } from '@/lib/dates'
 import { cn } from 'cn'
 
 // StatusPill, TierBadge and DateStamp from the component map in 07, section 6.
@@ -38,8 +38,8 @@ export function DateStamp({ value, withTime = false, className }: { value: strin
   if (!value) return <span className={cn('text-slate', className)}>—</span>
   const d = new Date(value)
   return (
-    <time dateTime={d.toISOString()} className={cn('tabular-nums whitespace-nowrap', className)}>
-      {format(d, withTime ? 'd MMMM yyyy, HH:mm' : 'd MMMM yyyy')}
+    <time dateTime={value} className={cn('tabular-nums whitespace-nowrap', className)}>
+      {withTime ? formatDateTime(d) : formatLongDate(value)}
     </time>
   )
 }

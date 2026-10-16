@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth/guards'
 import { BranchEditor, StewardControls } from './branch-forms'
+import { plural } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Branches' }
@@ -50,7 +51,7 @@ export default async function BranchesAdminPage() {
                 {b.name}
               </h2>
               <span className="text-sm text-slate tabular-nums">
-                <Link href={`/admin/members?branch=${b.id}`} className="hover:underline">{(countBy.get(b.id) ?? 0).toLocaleString()} active members</Link>
+                <Link href={`/admin/members?branch=${b.id}`} className="hover:underline">{plural(Number(countBy.get(b.id) ?? 0), 'active member')}</Link>
               </span>
             </div>
             {b.description ? <p className="text-sm text-slate">{b.description}</p> : null}

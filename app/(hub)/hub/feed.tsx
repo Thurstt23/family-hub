@@ -6,6 +6,8 @@ import { Heart, MessageCircle } from 'lucide-react'
 import { toggleLike, addComment, reportComment } from './actions'
 import { PostComposer } from './post-composer'
 import { Markdown } from '@/components/ui/markdown'
+import Link from 'next/link'
+import { avatarSrc } from '@/lib/utils'
 
 export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: string }) {
   const [posts, setPosts] = useState(initialPosts)
@@ -55,15 +57,21 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
           <div key={post.id} className="bg-card border border-rule rounded-md p-4 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-muted overflow-hidden border border-rule">
-                {post.author.avatar_url && (
-                  <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${post.author.avatar_url}`} alt="" className="w-full h-full object-cover" />
+                {avatarSrc(post.author?.avatar_url) && (
+                  <img src={avatarSrc(post.author?.avatar_url)!} alt="" className="w-full h-full object-cover" />
                 )}
               </div>
               <div>
-                <p className="font-medium text-ink">{post.author.full_name}</p>
+                <p className="font-medium text-ink">{post.author?.full_name ?? 'Former member'}</p>
                 <p className="text-xs text-slate">{formatDistanceToNow(new Date(post.created_at))} ago</p>
               </div>
             </div>
+
+            {post.title && (
+              <h2 className="text-xl font-serif">
+                <Link href={`/hub/posts/${post.slug}`} className="hover:underline">{post.title}</Link>
+              </h2>
+            )}
 
             {post.body && (
               <Markdown content={post.body} />
@@ -115,7 +123,7 @@ export function Feed({ initialPosts, userId }: { initialPosts: any[], userId: st
                     <div key={c.id} className="flex gap-3 text-sm group">
                       <div className="w-8 h-8 rounded-full bg-muted overflow-hidden shrink-0 border border-rule">
                         {author?.avatar_url && (
-                          <img src={author.avatar_url.startsWith('http') ? author.avatar_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${author.avatar_url}`} alt="" className="w-full h-full object-cover" />
+                          <img src={avatarSrc(author.avatar_url)!} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div className="bg-muted px-3 py-2 rounded-md flex-1 relative">
