@@ -66,7 +66,7 @@ Trước khi push migration lên project thật, hãy tạo một bản sao lưu
 
      ```powershell
      mkdir backups
-     & "C:\Program Files\PostgreSQLin\pg_dump.exe" "postgresql://postgres.jzsgvmcrckaurxhkhpil:MAT_KHAU@aws-0-us-east-1.pooler.supabase.com:5432/postgres" -Fc -f backups\prod-truoc-0011.dump
+     & "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" "postgresql://postgres.jzsgvmcrckaurxhkhpil:MAT_KHAU@aws-0-us-east-1.pooler.supabase.com:5432/postgres" -Fc -f backups\prod-truoc-0011.dump
      ```
 
      Ra một file vài trăm KB đến vài MB là được. Thư mục `backups/` đã nằm trong `.gitignore`. File này chứa email và số điện thoại thành viên, **không gửi đi đâu cả**.
